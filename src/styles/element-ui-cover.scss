@@ -1,0 +1,322 @@
+/*.el-button:hover {
+  background: #f8f8f8;
+  color: #000000;
+  border-color: #b4b2b2;
+}*/
+
+/*.el-button:focus {
+  outline: none;
+  color: #000000;
+  background: #f8f8f8;
+  border-color: #b4b2b2;
+}*/
+
+.el-button {
+  --el-button-active-bg-color: var(--el-color-primary);
+  --el-button-active-text-color: var(--el-color-white);
+  --el-button-active-border-color: var(--el-color-primary);
+  --el-button-hover-bg-color: var(--el-color-primary);
+}
+
+.el-radio-button, .el-radio-button__inner {
+  background: var(--el-color-primary);
+  --el-radio-button-checked-bg-color: #ef7428;
+
+  :hover {
+    background: var(--el-color-primary-light-3);
+    color: #ffffff;
+  }
+}
+
+.el-overlay {
+  // background-color: rgba(0, 0, 0, 0);
+  overflow-y: hidden;
+}
+
+.el-drawer {
+  box-shadow: var(--el-box-shadow);
+}
+
+
+/*
+.el-input__wrapper {
+}*/
+.el-input__wrapper, .el-textarea__inner {
+  --el-input-text-color: #ffffff;
+
+  border-radius: 5px;
+  background: var(--el-color-primary-light-5);
+  box-shadow: rgba(135, 135, 135, 0.27) 0 0 0.15em, rgba(131, 131, 131, 0.05) 0 0.15em 0.5em;
+  color: #ffffff;
+
+  &.is-focus, &:hover {
+    box-shadow: rgba(189, 164, 164, 0.27) 0 0 0.15em, rgba(158, 158, 158, 0.05) 0 0.15em 0.5em;
+  }
+
+}
+
+.el-link:hover {
+  color: #2a67d9;
+}
+
+.el-dialog {
+  box-shadow: var(--el-box-shadow-light);
+}
+
+
+.el-select {
+  --el-select-border-color-hover: rgb(0, 162, 255) !important; // 修改下拉框hover的默认样式
+}
+
+.el-select {
+  .el-select__wrapper {
+    background-color: var(--el-color-primary);
+    color: #ffffff;
+  }
+}
+
+
+.el-select__popper.el-popper {
+  border: rgba(0, 27, 63)
+}
+
+.el-select-dropdown__wrap {
+  background-color: var(--el-color-primary)
+}
+
+.el-select-dropdown__item {
+  background-color: var(--el-color-primary);
+
+  &:hover {
+    background-color: var(--el-color-primary-light-5);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  &.is-selected {
+    color: #ef7428;
+    font-weight: 700;
+    background-color: var(--el-color-primary-light-5);
+  }
+
+  &.is-hovering {
+    background-color: var(--el-color-primary-light-5);
+  }
+}
+
+
+.el-card {
+  border-radius: 5px;
+  border: unset !important;
+  box-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;
+}
+
+.el-row {
+  margin: 0 !important;
+}
+
+:root {
+  --el-color-primary: #1e1e1e; // 暗黑主色
+  --el-color-primary-light-3: #2d2d2d; // 浅灰黑
+  --el-color-primary-light-5: #3c3c3c; // 中灰黑
+  --el-color-primary-light-7: #4b4b4b; // 更浅灰黑
+  --el-color-primary-light-8: #5a5a5a; // 极浅灰黑
+  --el-color-primary-light-9: #696969; // 淡灰黑
+  --el-color-primary-light-10: #787878; // 微淡灰黑
+  --el-color-primary-light-11: #878787; // 极淡灰黑
+  --el-color-primary-light-12: #969696; // 接近白色
+
+  // 其他暗黑主题适配
+  --el-bg-color: #121212; // 页面背景色
+  --el-text-color-primary: #ffffff; // 主要文字颜色
+  --el-text-color-regular: #cccccc; // 常规文字颜色
+  --el-border-color: #333333; // 边框颜色
+
+  --el-text-color-secondary: var(--el-text-color-primary);
+
+
+  --el-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Helvetica Neue", Helvetica, Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  .el-page-header__main {
+    border-top: unset !important;
+  }
+
+  .el-card.is-always-shadow {
+    box-shadow: var(--el-box-shadow-lighter);
+  }
+
+  .el-dialog__body {
+    padding: 10px 20px;
+  }
+
+  .el-main {
+    --el-main-padding: 0
+  }
+
+  .el-message {
+    //margin-top: 50px;
+    @media screen and (max-width: 500px) {
+      min-width: 200px !important;
+      display: flex;
+    }
+  }
+
+  .el-notification {
+    margin-top: 50px;
+  }
+
+  /*  .el-drawer {
+      top: 60px;
+      padding-bottom: 60px;
+    }*/
+
+  .el-tabs {
+    .el-tabs__header {
+      .el-tabs__nav-wrap {
+        .el-tabs__nav-scroll {
+          .el-tabs__nav {
+            z-index: calc(var(--el-index-normal) - 1);
+
+            .el-tabs__active-bar {
+              display: none;
+            }
+
+            .el-tabs__item {
+              padding: 10px;
+              text-align: center;
+              line-height: 20px;
+              font-size: 14px;
+            }
+
+            .el-tabs__item.is-active {
+              color: var(--el-color-primary);
+              font-weight: 600;
+              //font-size: 16px;
+            }
+          }
+        }
+      }
+    }
+
+    .el-tabs__nav-wrap::after {
+      display: none;
+    }
+  }
+
+  .el-link {
+    color: #5a4bd3
+  }
+
+
+  .tableStyle::before {
+    width: 0;
+  }
+
+  .el-table {
+    border: 1px solid #ececec;
+    //border: none;
+    font-size: 14px;
+    color: #666;
+    width: 100%;
+    border-radius: 10px;
+
+    &:before {
+      display: none;
+    }
+
+    .el-table__inner-wrapper {
+      border-radius: 10px;
+    }
+
+    th {
+      background: #f8f8f8;
+      color: #333;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 12px 16px;
+      font-weight: 500;
+    }
+
+    td {
+      border-bottom: 1px solid #f2f2f2;
+      padding: 16px 16px;
+      word-break: break-all;
+      color: #1C1C1E;
+
+      &:last-child {
+        borrder-radius: 0 0 0 10px;
+      }
+    }
+
+    &.el-table--enable-row-hover .el-table__body tr:hover > td {
+      background: #f5f5f5;
+      cursor: default;
+    }
+  }
+
+
+  .el-popper {
+    border-radius: 5px;
+  }
+
+  .el-text {
+    &.compact {
+      line-height: 16px;
+    }
+  }
+
+  .el-dialog {
+  }
+
+  .el-message-box {
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  /* 强制覆盖特定组件字体 */
+  .el-button,
+  .el-input,
+  .el-select,
+  .el-menu,
+  .el-table,
+  .el-dialog,
+  .el-message,
+  .el-popover,
+  .el-pagination,
+  .el-radio,
+  .el-checkbox,
+  .el-switch,
+  .el-collapse-item__header {
+    font-family: var(--el-font-family) !important;
+  }
+
+
+  /* 针对输入框内部文字 */
+  .el-input__inner,
+  .el-textarea__inner {
+    font-family: var(--el-font-family), serif !important;
+  }
+
+
+  .el-drawer-modal {
+    margin-bottom: -60px;
+    z-index: 10000000;
+
+    .el-drawer {
+      box-shadow: 0 -16px 16px rgba(0, 0, 0, 0.1);
+      border-radius: 20px 20px 0 0;
+    }
+
+
+    .el-drawer__body {
+      padding: 10px 10px;
+    }
+  }
+}
+
+.user-info-dialog {
+  border-radius: 20px;
+}
+
+.el-drawer__header {
+  margin: 0;
+}

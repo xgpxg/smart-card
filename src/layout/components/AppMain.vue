@@ -23,7 +23,7 @@ export default {
 
 <style scoped lang="scss">
 .app-main {
-  height: calc(100vh);
+  height: calc(100vh - 40px);
 }
 
 .fixed-header + .app-main {

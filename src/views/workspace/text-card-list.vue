@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import TextCard from "@/views/home/text-card.vue";
-import {Card} from "@/views/home/card.ts";
+import TextCard from "@/views/workspace/text-card.vue";
+import {Card} from "@/views/workspace/card.ts";
 
 defineProps({
   data: {
@@ -34,7 +34,7 @@ defineProps({
 .text-card-list {
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - 52px);
+  height: calc(100vh - 92px);
 }
 
 

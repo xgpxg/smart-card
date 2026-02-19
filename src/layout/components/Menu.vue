@@ -14,7 +14,7 @@
 import SvgIcon from "../../components/SvgIcon/index.vue";
 import DevRemark from "@components/DevUtil/dev-remark.vue";
 import AutoAvatar from "@components/avatar/AutoAvatar.vue";
-import AudioList from "@/views/home/audio-list.vue";
+import AudioList from "@/views/workspace/audio-list.vue";
 import UserInfo from "@/views/user/index.vue";
 
 const VERSION = import.meta.env.VITE_VERSION
@@ -66,7 +66,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .menu {
-  height: 100vh;
+  height: calc(100vh - 40px);
   background: #2e2e2e;
   border-right: rgb(57, 57, 57) solid 1px;
   z-index: 1;

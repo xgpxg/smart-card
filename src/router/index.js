@@ -15,9 +15,15 @@ const routes = [
         children: [
             {
                 path: 'welcome',
-                component: () => import('@/views/home/index.vue'),
+                component: () => import('@/views/welcome/index.vue'),
                 name: 'Welcome',
                 meta: {title: '首页', icon: 'welcome', affix: true,}
+            },
+            {
+                path: 'workspace',
+                component: () => import('@/views/workspace/index.vue'),
+                name: 'Workspace',
+                meta: {title: '首页', icon: 'workspace', affix: true,}
             },
         ]
     },

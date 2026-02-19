@@ -4,7 +4,7 @@ import {ElImageViewer} from 'element-plus';
 import {ZoomIn} from '@element-plus/icons-vue';
 import {Card} from "./card.ts";
 
-const value = defineModel<Card>( {
+const value = defineModel<Card>({
   default: () => reactive(new Card('', ''))
 });
 
@@ -56,19 +56,17 @@ const handleStyleClick = (styleItem: any) => {
 
 <template>
   <div>
-    <div class="fill-width">
-      <el-input v-model="value.content" type="textarea" :rows="10" placeholder="文本内容"></el-input>
+    <div class="flex">
+      <audio controls class="fill-width" controlslist="nodownload noplaybackrate" style="height: 32px">
+        <source src="http://music.163.com/song/media/outer/url?id=447925558.mp3" type="audio/mp3">
+        您的浏览器不支持 audio 元素。
+      </audio>
+      <el-button type="primary"  class="ml5">转文字</el-button>
     </div>
-    <el-form label-width="40px" class="mt10">
-      <el-form-item label="比例">
-        <el-radio-group v-model="proportion">
-          <el-radio-button label="1">1 : 1</el-radio-button>
-          <el-radio-button label="2">4 : 3</el-radio-button>
-          <el-radio-button label="4">3 : 4</el-radio-button>
-          <el-radio-button label="3">16 : 9</el-radio-button>
-          <el-radio-button label="5">9 : 16</el-radio-button>
-        </el-radio-group>
-      </el-form-item>
+    <div class="fill-width mt10">
+      <el-input v-model="value.content" type="textarea" :rows="8" placeholder="文本内容"></el-input>
+    </div>
+    <el-form label-width="40px" class="mt20">
       <el-form-item label="样式">
         <el-input placeholder="搜索样式" suffix-icon="search"></el-input>
         <div class="style-gallery mt5">
@@ -215,4 +213,13 @@ const handleStyleClick = (styleItem: any) => {
     background: #a8a8a8;
   }
 }
+
+audio {
+  filter: invert(0.8) hue-rotate(180deg);
+
+  &::-webkit-media-controls-enclosure {
+    border-radius: 5px;
+  }
+}
+
 </style>

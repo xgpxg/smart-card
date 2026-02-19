@@ -1,12 +1,21 @@
 <template>
-  <div class="flex fill-width">
-    <div>
-      <Menu :collapse="collapse" :style="{width:menuWidth + 'px'}"></Menu>
-    </div>
-    <div class="fill-width">
-      <AppMain></AppMain>
-    </div>
-  </div>
+  <el-container>
+    <el-header height="40px">
+      <Header></Header>
+    </el-header>
+    <el-main>
+      <div class="flex fill-width">
+        <div>
+          <Menu :collapse="collapse" :style="{width:menuWidth + 'px'}"></Menu>
+        </div>
+        <div class="fill-width">
+          <AppMain></AppMain>
+        </div>
+      </div>
+    </el-main>
+  </el-container>
+
+
 </template>
 
 
@@ -14,10 +23,11 @@
 
 import Menu from "@/layout/components/Menu.vue";
 import AppMain from "./components/AppMain.vue";
+import Header from "@/layout/components/Header.vue";
 
 export default {
   computed: {},
-  components: {AppMain, Menu},
+  components: {Header, AppMain, Menu},
   data() {
     return {
       menuWidth: 220,

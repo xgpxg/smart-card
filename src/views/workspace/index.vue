@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import TextCardList from "@/views/home/text-card-list.vue";
-import CardConfig from "@/views/home/card-config.vue";
+import TextCardList from "@/views/workspace/text-card-list.vue";
+import CardConfig from "@/views/workspace/card-config.vue";
 import {ref} from "vue";
 import {Card} from "./card.ts";
 

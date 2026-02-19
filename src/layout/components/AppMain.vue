@@ -12,7 +12,7 @@ export default {
   computed: {
     key() {
       let name = this.$route['name']
-      if (name === 'Chat') {
+      if (name === 'Workspace') {
         return this.$route.path
       }
     }

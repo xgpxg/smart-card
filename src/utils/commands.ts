@@ -1,4 +1,4 @@
-import {invoke} from "@tauri-apps/api/core";
+import {convertFileSrc, invoke} from "@tauri-apps/api/core";
 import {ElMessage} from "element-plus";
 
 const IS_DEV = import.meta.env.VITE_IS_DEV
@@ -7,9 +7,20 @@ const isDev = () => {
     return IS_DEV === 1 || IS_DEV === '1'
 }
 
-const call = async (command: string, args: any) => {
+
+class Res{
+    code: number;
+    msg: string;
+    data: any;
+    constructor(code: number, msg: string, data: any) {
+        this.code = code
+        this.msg = msg
+        this.data = data
+    }
+}
+const call = async (command: string, args?: any) => {
     try {
-        const res = await invoke(command, args)
+        const res: Res = await invoke(command, args)
         if (res.code !== 0) {
             let msg = res.msg
             if (isDev()) {
@@ -20,13 +31,17 @@ const call = async (command: string, args: any) => {
         }
         return res.data
     } catch (e) {
-        debugger
         ElMessage.error(e.message || e)
         throw e
     }
 
 }
 
+const convertAudioSrc = (path: string) => {
+    return convertFileSrc(path)
+}
+
 export {
-    call
+    call,
+    convertAudioSrc
 }

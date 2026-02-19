@@ -2,11 +2,29 @@
 
 import TextCardList from "@/views/workspace/text-card-list.vue";
 import CardConfig from "@/views/workspace/card-config.vue";
-import {ref} from "vue";
+import {onMounted, provide, reactive, ref} from "vue";
 import {Card} from "./card.ts";
+import {useRoute} from "vue-router";
+import {call} from "@/utils/commands.ts";
 
+const route = useRoute()
 
-const data = ref(new Card('',''))
+const data = ref(new Card('', ''))
+
+const workspace_id = Number(route.params.id);
+
+const workspace = ref({})
+
+onMounted(() => {
+  loadData()
+})
+const loadData = async () => {
+  workspace.value = await call('get_workspace', {
+    id: workspace_id
+  })
+}
+
+provide('workspace', workspace)
 </script>
 
 <template>

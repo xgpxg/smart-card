@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import ContextMenu from '@imengyu/vue3-context-menu'
 import {open} from '@tauri-apps/plugin-dialog'
 import {sep} from '@tauri-apps/api/path';
 import {useRouter} from "vue-router";
+import {call} from "@/utils/commands.ts";
 
 const router = useRouter()
 const kw = ref(null)
 
-function onContextMenu(e: MouseEvent) {
+const onContextMenu = (e: MouseEvent, item: any) => {
   //prevent the browser's default menu
   e.preventDefault();
   //show your menu
@@ -26,7 +27,9 @@ function onContextMenu(e: MouseEvent) {
       {
         label: "删除",
         onClick: () => {
-          alert("You click a menu item");
+          deleteWorkspace(item.id).then(() => {
+            loadData();
+          })
         }
       },
     ]
@@ -51,18 +54,36 @@ const openFileDialog = async () => {
     selectedFiles.value = [files]
   }
 
-  audioList.value.push(...selectedFiles.value.map(file => {
-    return {
-      name: file.substring(file.lastIndexOf(sep()) + 1)
-    }
-  }))
+  await addWorkspace(selectedFiles.value[0])
+
+  await loadData()
 
 }
 
-const audioList = ref<any[]>([])
+const workspaces = ref<any[]>([])
 
-const toWorkspace = () => {
-  router.push({name: 'Workspace'})
+const toWorkspace = (workspace: any) => {
+  router.push({name: 'Workspace', params: {id: workspace.id}})
+}
+
+const loadData = async () => {
+  workspaces.value = await call('list_workspaces')
+}
+
+onMounted(() => {
+  loadData()
+})
+
+const addWorkspace = async (filePath: string) => {
+  await call('add_workspace', {
+    file_path: filePath
+  });
+}
+
+const deleteWorkspace = async (id: number) => {
+  await call('delete_workspace', {
+    id
+  });
 }
 </script>
 
@@ -76,11 +97,11 @@ const toWorkspace = () => {
     </el-button>
   </div>
   <div class="audio-list">
-    <div v-for="item in audioList" @contextmenu="onContextMenu">
-      <div class="audio-item flex-space-between" @click="toWorkspace">
+    <div v-for="item in workspaces" @contextmenu="onContextMenu ($event, item) ">
+      <div class="audio-item flex-space-between" @click="toWorkspace(item)">
         <div class="ellipsis" :title="item.name">
           <svg-icon icon-class="voice"></svg-icon>
-          {{ item.name }}
+          {{ item.file_name }}
         </div>
         <div class="ml5">
           <el-text size="small" type="info">03:41</el-text>

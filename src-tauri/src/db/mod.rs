@@ -1,0 +1,61 @@
+use anyhow::bail;
+use common::data_dir;
+use rbatis::RBatis;
+use std::sync::OnceLock;
+
+#[allow(unused)]
+mod migrations;
+pub mod models;
+mod sqlite;
+pub mod tools;
+
+static RB: OnceLock<RBatis> = OnceLock::new();
+
+pub struct Pool;
+impl Pool {
+    pub fn get<'a>() -> anyhow::Result<&'a RBatis> {
+        match RB.get() {
+            None => {
+                log::error!("rbatis not init");
+                bail!("rbatis not init".to_string());
+            }
+            Some(rb) => Ok(rb),
+        }
+    }
+}
+
+pub async fn init() -> anyhow::Result<()> {
+    let path = data_dir!("sqlite", "database.db").display().to_string();
+    let url = format!("sqlite://{}", path);
+    match url {
+        url if url.starts_with("sqlite") => sqlite::init(&url).await,
+        url if url.starts_with("mysql") => {
+            //mysql::init(url, &args.db_username, &args.db_password).await
+            unimplemented!("mysql not support")
+        }
+        _ => bail!("database not support"),
+    };
+
+    // 单机模式下执行版本升级
+    // 集群模式下需要提供升级脚本执行
+    // if AppConfig::mode() == &config::Mode::Standalone {
+    //     migrations::run(&mut Pool::get()?.clone()).await;
+    // }
+
+    Ok(())
+}
+
+#[macro_export]
+macro_rules! update_nullable_fields {
+    ($tx:expr, $table_name:expr, $id:expr, $($field:ident = $value:expr),* ) => {
+        $(
+            if $value.is_none() {
+                $tx.exec(
+                    &format!("update {} set {} = null where id = ?", $table_name, stringify!($field)),
+                    vec![value!($id)],
+                )
+                .await?;
+            }
+        )*
+    };
+}

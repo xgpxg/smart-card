@@ -20,7 +20,7 @@ const routes = [
                 meta: {title: '首页', icon: 'welcome', affix: true,}
             },
             {
-                path: 'workspace',
+                path: 'workspace/:id',
                 component: () => import('@/views/workspace/index.vue'),
                 name: 'Workspace',
                 meta: {title: '首页', icon: 'workspace', affix: true,}

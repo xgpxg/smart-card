@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import {reactive, ref} from "vue";
+import {computed, inject, reactive, ref} from "vue";
 import {ElImageViewer} from 'element-plus';
 import {ZoomIn} from '@element-plus/icons-vue';
 import {Card} from "./card.ts";
+import {convertAudioSrc} from "@/utils/commands.ts";
 
 const value = defineModel<Card>({
   default: () => reactive(new Card('', ''))
 });
 
+// 工作空间，包含所有配置
+const workspace = inject<any>('workspace')
 
-const proportion = ref(null);
+// 转换音频地址，用于播放
+const audio_url = computed(() => convertAudioSrc(workspace.value.file_path))
+
+
 const previewVisible = ref(false);
 const previewUrl = ref('');
 
@@ -33,18 +39,6 @@ const cardStyles = [
     thumbnail: '/card-styles/商务风.png',
     preview: '/card-styles/商务风.png'
   },
-  {
-    id: '4',
-    name: '科技风',
-    thumbnail: '/images/style4-thumb.jpg',
-    preview: '/images/style4-preview.jpg'
-  },
-  {
-    id: '5',
-    name: '复古风',
-    thumbnail: '/images/style5-thumb.jpg',
-    preview: '/images/style5-preview.jpg'
-  }
 ];
 
 const handleStyleClick = (styleItem: any) => {
@@ -52,16 +46,21 @@ const handleStyleClick = (styleItem: any) => {
   previewVisible.value = true;
 };
 
+setTimeout(() => {
+  workspace.value.file_name = 'aaa'
+}, 1000)
+
 </script>
 
 <template>
   <div>
     <div class="flex">
-      <audio controls class="fill-width" controlslist="nodownload noplaybackrate" style="height: 32px">
-        <source src="http://music.163.com/song/media/outer/url?id=447925558.mp3" type="audio/mp3">
+      <audio
+          :key="audio_url" controls class="fill-width" controlslist="nodownload noplaybackrate" style="height: 32px">
+        <source :src="audio_url" type="audio/mp3">
         您的浏览器不支持 audio 元素。
       </audio>
-      <el-button type="primary"  class="ml5">转文字</el-button>
+      <el-button type="primary" class="ml5">转文字</el-button>
     </div>
     <div class="fill-width mt10">
       <el-input v-model="value.content" type="textarea" :rows="8" placeholder="文本内容"></el-input>

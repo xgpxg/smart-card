@@ -10,16 +10,30 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "smart-card",
+        "url": "/init",
         "width": 960,
         "height": 670,
-        "decorations": false
+        "decorations": false,
+        "visible": false
+      },
+      {
+        "title": "更新和升级",
+        "label": "splashscreen",
+        "url": "splashscreen/splashscreen.html",
+        "width": 640,
+        "height": 480,
+        "minWidth": 640,
+        "minHeight": 480,
+        "decorations": false,
+        "visible": false
       }
     ],
     "security": {
-      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost http://tauri.localhost data:; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://ipc.localhost;",
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost http://tauri.localhost data:; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://ipc.localhost; media-src http://asset.localhost;",
       "assetProtocol": {
         "enable": true,
         "scope": [

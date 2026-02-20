@@ -3,7 +3,7 @@ import {computed, inject, reactive, ref} from "vue";
 import {ElImageViewer} from 'element-plus';
 import {ZoomIn} from '@element-plus/icons-vue';
 import {Card} from "./card.ts";
-import {convertAudioSrc} from "@/utils/commands.ts";
+import {call, convertAudioSrc} from "@/utils/commands.ts";
 
 const value = defineModel<Card>({
   default: () => reactive(new Card('', ''))
@@ -14,6 +14,14 @@ const workspace = inject<any>('workspace')
 
 // 转换音频地址，用于播放
 const audio_url = computed(() => convertAudioSrc(workspace.value.file_path))
+
+// 开始音频转文字
+const startAudioToText = async () => {
+  await call('start_audio_to_text', {
+    id: workspace.value.id
+  })
+  PubSub.publish('workspace/reload', {id: workspace.value.id})
+}
 
 
 const previewVisible = ref(false);
@@ -46,10 +54,6 @@ const handleStyleClick = (styleItem: any) => {
   previewVisible.value = true;
 };
 
-setTimeout(() => {
-  workspace.value.file_name = 'aaa'
-}, 1000)
-
 </script>
 
 <template>
@@ -58,12 +62,12 @@ setTimeout(() => {
       <audio
           :key="audio_url" controls class="fill-width" controlslist="nodownload noplaybackrate" style="height: 32px">
         <source :src="audio_url" type="audio/mp3">
-        您的浏览器不支持 audio 元素。
+        无法播放此音频。
       </audio>
-      <el-button type="primary" class="ml5">转文字</el-button>
+      <el-button @click="startAudioToText" type="primary" class="ml5">转文字</el-button>
     </div>
     <div class="fill-width mt10">
-      <el-input v-model="value.content" type="textarea" :rows="8" placeholder="文本内容"></el-input>
+      <el-input v-model="workspace.trans_text" type="textarea" :rows="8" placeholder="文本内容"></el-input>
     </div>
     <el-form label-width="40px" class="mt20">
       <el-form-item label="样式">
@@ -103,7 +107,7 @@ setTimeout(() => {
         </el-radio-group>
       </el-form-item>
       <el-form-item label="字体">
-        <el-select v-model="value.font" :teleported="false">
+        <el-select v-model="value['font']" :teleported="false">
           <el-option label="1" value="1">自动</el-option>
           <el-option label="2" value="2">单张</el-option>
           <el-option label="3" value="3">按字数拆分</el-option>

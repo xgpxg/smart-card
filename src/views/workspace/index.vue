@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
-import TextCardList from "@/views/workspace/text-card-list.vue";
 import CardConfig from "@/views/workspace/card-config.vue";
 import {onMounted, provide, reactive, ref} from "vue";
 import {Card} from "./card.ts";
 import {useRoute} from "vue-router";
 import {call} from "@/utils/commands.ts";
+import CardList from "@/views/workspace/card-list.vue";
 
 const route = useRoute()
 
@@ -17,6 +17,12 @@ const workspace = ref({})
 
 onMounted(() => {
   loadData()
+
+  PubSub.subscribe('workspace/reload', (msg,data) => {
+    if (data.id === workspace_id){
+      loadData()
+    }
+  })
 })
 const loadData = async () => {
   workspace.value = await call('get_workspace', {
@@ -34,7 +40,7 @@ provide('workspace', workspace)
         <card-config v-model="data"></card-config>
       </el-col>
       <el-col :span="12">
-        <text-card-list :data="data"></text-card-list>
+        <card-list :data="data"></card-list>
       </el-col>
     </el-row>
   </div>

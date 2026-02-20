@@ -1,6 +1,7 @@
 use crate::common::res::Res;
 use crate::db::models::workspace::Workspace;
 use crate::server::workspace::service;
+use tauri::AppHandle;
 
 #[tauri::command(rename_all = "snake_case")]
 pub(crate) async fn list_workspaces() -> Res<Vec<Workspace>> {
@@ -30,6 +31,14 @@ pub(crate) async fn delete_workspace(id: i64) -> Res<()> {
 pub(crate) async fn get_workspace(id: i64) -> Res<Workspace> {
     match service::detail(id).await {
         Ok(res) => Res::success(res),
+        Err(e) => Res::error(e.to_string().as_str()),
+    }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub(crate) async fn start_audio_to_text(id: i64) -> Res<()> {
+    match service::start_audio_to_text(id).await {
+        Ok(()) => Res::success(()),
         Err(e) => Res::error(e.to_string().as_str()),
     }
 }

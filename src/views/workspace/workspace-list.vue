@@ -8,34 +8,6 @@ import {call} from "@/utils/commands.ts";
 
 const router = useRouter()
 const kw = ref(null)
-
-const onContextMenu = (e: MouseEvent, item: any) => {
-  //prevent the browser's default menu
-  e.preventDefault();
-  //show your menu
-  ContextMenu.showContextMenu({
-    x: e.x,
-    y: e.y,
-    theme: 'win10 dark',
-    items: [
-      {
-        label: "重命名",
-        onClick: () => {
-          alert("You click a menu item");
-        }
-      },
-      {
-        label: "删除",
-        onClick: () => {
-          deleteWorkspace(item.id).then(() => {
-            loadData();
-          })
-        }
-      },
-    ]
-  });
-}
-
 const selectedFiles = ref<string[]>([])
 const openFileDialog = async () => {
   const files = await open({
@@ -72,6 +44,11 @@ const loadData = async () => {
 
 onMounted(() => {
   loadData()
+
+  // 定时刷新
+  setInterval(() => {
+    loadData()
+  }, 1000)
 })
 
 const addWorkspace = async (filePath: string) => {
@@ -83,6 +60,34 @@ const addWorkspace = async (filePath: string) => {
 const deleteWorkspace = async (id: number) => {
   await call('delete_workspace', {
     id
+  });
+}
+
+
+const onContextMenu = (e: MouseEvent, item: any) => {
+  //prevent the browser's default menu
+  e.preventDefault();
+  //show your menu
+  ContextMenu.showContextMenu({
+    x: e.x,
+    y: e.y,
+    theme: 'win10 dark',
+    items: [
+      {
+        label: "重命名",
+        onClick: () => {
+          alert("You click a menu item");
+        }
+      },
+      {
+        label: "删除",
+        onClick: () => {
+          deleteWorkspace(item.id).then(() => {
+            loadData();
+          })
+        }
+      },
+    ]
   });
 }
 </script>
@@ -100,7 +105,9 @@ const deleteWorkspace = async (id: number) => {
     <div v-for="item in workspaces" @contextmenu="onContextMenu ($event, item) ">
       <div class="audio-item flex-space-between" @click="toWorkspace(item)">
         <div class="ellipsis" :title="item.name">
-          <svg-icon icon-class="voice"></svg-icon>
+          <svg-icon v-if="item.trans_text_status === 'NotStart'" icon-class="loading" class="loading"></svg-icon>
+          <svg-icon v-if="item.trans_text_status === 'Processing'" icon-class="loading" class="loading"></svg-icon>
+          <svg-icon v-if="item.trans_text_status === 'Ok'" icon-class="voice"></svg-icon>
           {{ item.file_name }}
         </div>
         <div class="ml5">

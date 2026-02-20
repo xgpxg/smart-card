@@ -2,6 +2,7 @@
 
 import TextCard from "@/views/workspace/text-card.vue";
 import {Card} from "@/views/workspace/card.ts";
+import {inject} from "vue";
 
 defineProps({
   data: {
@@ -9,6 +10,9 @@ defineProps({
     required: true
   }
 });
+
+const workspace = inject<any>('workspace')
+
 </script>
 
 <template>
@@ -21,7 +25,7 @@ defineProps({
         <div class="text-card">
           <text-card
               :title="`测试卡片 ${i}`"
-              :content="data.content"
+              :content="workspace.trans_text"
               :remote-url="`http://127.0.0.1:10800/public/test/test.vue?v=${i}`"
           ></text-card>
         </div>

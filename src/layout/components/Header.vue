@@ -4,14 +4,6 @@ import SvgIcon from "@components/SvgIcon/index.vue";
 import {computed, onMounted, ref} from "vue";
 
 const appWindow = getCurrentWindow();
-const user = computed(() => store.state.user)
-const userSettingsRef = ref()
-
-const applyTheme = (theme: string) => {
-  const html = document.documentElement
-  html.classList.add(theme)
-  document.body.removeAttribute('class')
-}
 
 onMounted(() => {
 

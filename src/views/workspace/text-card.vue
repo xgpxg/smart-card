@@ -40,7 +40,7 @@ onMounted(() => {
     </div>
 
     <div v-else-if="error" class="error-state">
-      加载失败: {{ error.message }}
+      加载失败: {{ error }}
     </div>
 
     <component

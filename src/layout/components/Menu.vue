@@ -1,7 +1,7 @@
 <template>
   <div class="menu">
-    <!-- 音频列表 -->
-    <AudioList class="audio-list-container"/>
+    <!-- 工作空间列表 -->
+    <WorkspaceList class="audio-list-container"/>
 
     <!--    <div class="bottom">
           &lt;!&ndash; 用户信息区域 &ndash;&gt;
@@ -14,14 +14,14 @@
 import SvgIcon from "../../components/SvgIcon/index.vue";
 import DevRemark from "@components/DevUtil/dev-remark.vue";
 import AutoAvatar from "@components/avatar/AutoAvatar.vue";
-import AudioList from "@/views/workspace/audio-list.vue";
+import WorkspaceList from "@/views/workspace/workspace-list.vue";
 import UserInfo from "@/views/user/index.vue";
 
 const VERSION = import.meta.env.VITE_VERSION
 export default {
   components: {
     UserInfo,
-    AudioList,
+    WorkspaceList,
     AutoAvatar,
     DevRemark,
     SvgIcon

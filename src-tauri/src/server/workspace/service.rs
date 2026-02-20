@@ -1,9 +1,10 @@
-use crate::db::models::workspace::{Workspace, WorkspaceBuilder};
+use crate::db::models::workspace::{TransTextStatus, Workspace, WorkspaceBuilder};
 use crate::db::Pool;
 use common::id;
 use rbs::value;
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use tauri::{AppHandle, Emitter};
 
 pub(crate) async fn list() -> anyhow::Result<Vec<Workspace>> {
     let list = Workspace::select_all(Pool::get()?).await?;
@@ -25,6 +26,7 @@ pub(crate) async fn add(file_path: String) -> anyhow::Result<()> {
         .file_type(Some(
             path.extension().unwrap().to_string_lossy().to_string(),
         ))
+        .trans_text_status(Some(TransTextStatus::NotStart))
         .build()?;
 
     Workspace::insert(Pool::get()?, &ws).await?;
@@ -52,8 +54,39 @@ pub(crate) async fn detail(id: i64) -> anyhow::Result<Workspace> {
     )
     .await?;
     if ws.is_empty() {
-        return Err(anyhow::anyhow!("未找到该文件"));
+        return Err(anyhow::anyhow!("Not Found"));
     }
     let ws = ws.first().unwrap().clone();
     Ok(ws)
+}
+
+pub(crate) async fn start_audio_to_text(id: i64) -> anyhow::Result<()> {
+    let mut workspace = detail(id).await?;
+    let path = &workspace.file_path.clone().unwrap();
+    log::info!("开始识别文件: {}", path);
+
+    let tx = Pool::get()?;
+    workspace.trans_text_status = Some(TransTextStatus::Processing);
+    Workspace::update_by_map(
+        tx,
+        &workspace,
+        value! {
+            "id": id,
+        },
+    )
+    .await?;
+    let content = asr::run(path).await?;
+    workspace.trans_text = Some(content);
+    log::info!("识别完成: {}", path);
+    workspace.trans_text_status = Some(TransTextStatus::Ok);
+    Workspace::update_by_map(
+        tx,
+        &workspace,
+        value! {
+            "id": id,
+        },
+    )
+    .await?;
+
+    Ok(())
 }

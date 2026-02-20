@@ -8,6 +8,9 @@ pub mod app_version;
 mod downloader;
 mod resources_downloader;
 
+const APP_NAME: &str = "myj";
+const RESOURCES_PACKAGE_NAME: &str = "resources.tar.gz";
+
 pub enum Phase {
     CheckUpdate { current_version: String },
     CheckResources { current_version: String },

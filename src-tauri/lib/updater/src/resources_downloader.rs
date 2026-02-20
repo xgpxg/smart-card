@@ -1,4 +1,4 @@
-use crate::downloader;
+use crate::{APP_NAME, downloader};
 use common::dir::AppDir;
 use std::fs;
 
@@ -20,14 +20,14 @@ pub(crate) async fn download(
     let url = if check_ipv6_support().await {
         log::info!("IPV6 is supported");
         format!(
-            "http://v6-package-release.coderbox.cn:5080/fs-kb-app/app/resource/{}/{}",
-            version, package_name
+            "http://v6-package-release.coderbox.cn:5080/{}/app/resource/{}/{}",
+            APP_NAME, version, package_name
         )
     } else {
         log::info!("IPV6 is not supported, use IPV4");
         format!(
-            "https://package-release.coderbox.cn/fs-kb-app/app/resource/{}/{}",
-            version, package_name
+            "https://package-release.coderbox.cn/{}/app/resource/{}/{}",
+            APP_NAME, version, package_name
         )
     };
 

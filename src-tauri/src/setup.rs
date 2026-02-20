@@ -199,6 +199,18 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
 
         Ok::<(), anyhow::Error>(())
     });
+
+    tauri::async_runtime::spawn(async move {
+        let model_save_path = data_dir!("models");
+        if !model_save_path.exists() {
+            fs::create_dir_all(&model_save_path)?;
+        }
+        log::info!("正在加载模型");
+        asr::load_model(&model_save_path.display().to_string()).await?;
+        log::info!("模型加载完成");
+        Ok::<(), anyhow::Error>(())
+    });
+
     Ok(())
 }
 

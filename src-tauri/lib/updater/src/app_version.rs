@@ -1,7 +1,14 @@
+use crate::APP_NAME;
 use anyhow::bail;
 use serde::{Deserialize, Serialize};
+use std::sync::LazyLock;
 
-const APP_VERSION_ENDPOINT: &str = "https://package-release.coderbox.cn/fs-kb-app/app-windows.json";
+static APP_VERSION_ENDPOINT: LazyLock<String> = LazyLock::new(|| {
+    format!(
+        "https://package-release.coderbox.cn/{}/app-windows.json",
+        APP_NAME
+    )
+});
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppVersion {
@@ -20,7 +27,7 @@ pub struct AppVersion {
 }
 
 pub async fn get_latest_version() -> anyhow::Result<AppVersion> {
-    let versions = reqwest::get(APP_VERSION_ENDPOINT)
+    let versions = reqwest::get(APP_VERSION_ENDPOINT.as_str())
         .await?
         .json::<Vec<AppVersion>>()
         .await?;
@@ -30,7 +37,7 @@ pub async fn get_latest_version() -> anyhow::Result<AppVersion> {
     Ok(versions[0].clone())
 }
 pub async fn get_all_versions() -> anyhow::Result<Vec<AppVersion>> {
-    let versions = reqwest::get(APP_VERSION_ENDPOINT)
+    let versions = reqwest::get(APP_VERSION_ENDPOINT.as_str())
         .await?
         .json::<Vec<AppVersion>>()
         .await?;
@@ -40,7 +47,7 @@ pub async fn get_all_versions() -> anyhow::Result<Vec<AppVersion>> {
     Ok(versions)
 }
 pub async fn get_version(version: &str) -> anyhow::Result<AppVersion> {
-    let versions = reqwest::get(APP_VERSION_ENDPOINT)
+    let versions = reqwest::get(APP_VERSION_ENDPOINT.as_str())
         .await?
         .json::<Vec<AppVersion>>()
         .await?;

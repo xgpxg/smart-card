@@ -1,20 +1,35 @@
 <script setup lang="ts">
 
 import TextCard from "@/views/workspace/text-card.vue";
-import {inject, nextTick, onMounted, ref, watch} from "vue";
+import {inject, nextTick, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import {open} from '@tauri-apps/plugin-dialog'
+import {ElLoading} from "element-plus";
+import PubSub from 'pubsub-js'
 
 const workspace = inject<any>('workspace')
 
 const pagination = workspace.value.pagination
 
 const cards = ref<any[]>([])
-
+const cardRefs = ref([])
 onMounted(() => {
   splitText()
 });
 
 watch(workspace.value, (newValue) => {
   splitText()
+}, {deep: true})
+
+
+const initCardRefs = () => {
+  cardRefs.value = Array(cards.value.length).fill(null)
+}
+
+watch(cards, () => {
+  // 当 cards 数组变化时，重新初始化 refs
+  nextTick(() => {
+    initCardRefs()
+  })
 }, {deep: true})
 
 const splitText = () => {
@@ -89,29 +104,58 @@ const unescapeString = (str) => {
 }
 
 const isShow = ref(true)
-PubSub.subscribe('workspace/style/change', ()=>{
+PubSub.subscribe('workspace/style/change', () => {
   isShow.value = false
-  nextTick( () => {
+  nextTick(() => {
     isShow.value = true
   })
 })
+
+PubSub.subscribe('workspace/card/save', async () => {
+  console.log('cardRefs', cardRefs.value)
+  const path = await open({
+    directory: true,
+    multiple: false,
+    title: '选择保存文件夹'
+  });
+
+  if (!path) {
+    return
+  }
+  const loading = ElLoading.service({
+    text: '正在导出图片...',
+  })
+  cardRefs.value.forEach((cardRef, index) => {
+    if (cardRef) {
+      console.log(`Card ${index}:`, cardRef)
+      cardRef.saveImage(path + '/' + workspace.value.text_title + '/' + workspace.value.text_title + '_' + index + '.png')
+    }
+  })
+  loading.close()
+
+})
+
+onBeforeUnmount(() => {
+  PubSub.unsubscribe('workspace/style/change')
+  PubSub.unsubscribe('workspace/card/save')
+})
+
 </script>
 
 <template>
-  <div class="pdr5 pdl5 mb10">
-    <el-button type="primary" class="fill-width" icon="download">保存</el-button>
-  </div>
+  <!--  <div class="pdr5 pdl5 mb10">
+      <el-button type="primary" class="fill-width" icon="download">保存</el-button>
+    </div>-->
   <div class="text-card-list" v-if="isShow">
     <el-row :gutter="10">
-      <el-col v-for="item in cards" :span="24" :xs="24" :sm="24" :xm="24" :md="24" :lg="12" :xl="8">
-        <div class="text-card">
-          <text-card
-              :url="`/cards/component/${workspace.style_id}.vue`"
-              :title="`测试卡片`"
-              :content="item"
-              :font="workspace.font"
-          ></text-card>
-        </div>
+      <el-col v-for="(item, index) in cards" :span="24" :xs="24" :sm="24" :xm="24" :md="24" :lg="12" :xl="8">
+        <text-card
+            :ref="(el) => { cardRefs[index] = el }"
+            :url="`/cards/component/${workspace.style_id}.vue`"
+            :title="workspace.text_title"
+            :content="item"
+            :font="workspace.font"
+        ></text-card>
       </el-col>
     </el-row>
   </div>
@@ -121,7 +165,7 @@ PubSub.subscribe('workspace/style/change', ()=>{
 .text-card-list {
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - 92px);
+  height: calc(100vh - 52px);
 }
 
 

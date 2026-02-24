@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "name": "便签",
+    "thumbnail": "/cards/thumbnail/1.png"
+  },
+  {
+    "id": 2,
+    "name": "深蓝",
+    "thumbnail": "/cards/thumbnail/2.png"
+  },
+  {
+    "id": 3,
+    "name": "森林绿",
+    "thumbnail": "/cards/thumbnail/3.png"
+  },
+  {
+    "id": 4,
+    "name": "渐变紫",
+    "thumbnail": "/cards/thumbnail/4.png"
+  },
+  {
+    "id": 5,
+    "name": "复古棕",
+    "thumbnail": "/cards/thumbnail/5.png"
+  }
+]

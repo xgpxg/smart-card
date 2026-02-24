@@ -2,11 +2,12 @@
 import {onMounted, ref} from "vue";
 import ContextMenu from '@imengyu/vue3-context-menu'
 import {open} from '@tauri-apps/plugin-dialog'
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {call} from "@/utils/commands.ts";
 import {store} from "@/store";
 
 const router = useRouter()
+const route = useRoute()
 const kw = ref(null)
 const workspaces = ref<any[]>([])
 const selectedFiles = ref<string[]>([])
@@ -86,12 +87,12 @@ const onContextMenu = (e: MouseEvent, item: any) => {
     y: e.y,
     theme: 'win10 dark',
     items: [
-      {
+      /*{
         label: "重命名",
         onClick: () => {
           alert("You click a menu item");
         }
-      },
+      },*/
       {
         label: "删除",
         onClick: () => {
@@ -106,9 +107,9 @@ const onContextMenu = (e: MouseEvent, item: any) => {
 </script>
 
 <template>
-  <div class="pd10">
-    <el-input v-model="kw" placeholder="搜索音频/卡片/文本" suffix-icon="search"></el-input>
-  </div>
+  <!--  <div class="pd10">
+      <el-input v-model="kw" placeholder="搜索音频/卡片/文本" suffix-icon="search"></el-input>
+    </div>-->
   <div class="pd10">
     <el-button @click="openFileDialog" type="primary" icon="plus" class="fill-width">
       添加音频
@@ -116,7 +117,8 @@ const onContextMenu = (e: MouseEvent, item: any) => {
   </div>
   <div class="audio-list">
     <div v-for="item in workspaces" @contextmenu="onContextMenu ($event, item) ">
-      <div class="audio-item flex-space-between" @click="toWorkspace(item)">
+      <div class="audio-item flex-space-between" @click="toWorkspace(item)"
+           :class="{activate: item.id === Number(route.params.id) }">
         <div class="ellipsis" :title="item.name">
           <svg-icon v-if="item.trans_text_status === 'Processing'" icon-class="loading" class="loading"></svg-icon>
           <svg-icon v-else icon-class="voice"></svg-icon>
@@ -143,7 +145,10 @@ const onContextMenu = (e: MouseEvent, item: any) => {
   &:hover {
     background-color: var(--el-color-primary-light-5);
     cursor: default;
+  }
 
+  &.activate {
+    background-color: var(--el-color-primary-light-5);
   }
 }
 

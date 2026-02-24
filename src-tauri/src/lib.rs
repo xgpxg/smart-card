@@ -33,6 +33,7 @@ pub fn run() {
             server::workspace::commands::delete_workspace,
             server::workspace::commands::get_workspace,
             server::workspace::commands::start_audio_to_text,
+            common::utils::save_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import {ref, shallowRef, onMounted} from "vue";
 import {loadRemoteComponent} from '@/utils/sfc-loader'
+import html2canvas from 'html2canvas'
+import {ElMessage} from 'element-plus'
+import {save} from '@tauri-apps/plugin-dialog';
+import {call} from "@/utils/commands.ts";
 
 const props = defineProps({
   url: {type: String, required: true},
@@ -32,9 +36,97 @@ onMounted(() => {
   loadComponent()
 })
 
-const saveImage = () => {
 
- }
+const saveImage = async (path: string) => {
+  if (!path) {
+    path = await save({
+      filters: [
+        {
+          name: 'Image',
+          extensions: ['png'],
+        },
+      ],
+      defaultPath: props.title + '.png'
+    });
+  }
+
+
+  if (!dom.value) {
+    ElMessage.error('无法获取组件DOM元素')
+    return
+  }
+
+  try {
+    const canvas = await html2canvas(dom.value, {
+      backgroundColor: null,
+      scale: 3,
+      useCORS: true,
+      logging: false,
+      width: dom.value.scrollWidth,
+      height: dom.value.scrollHeight
+    })
+
+    canvas.toBlob(async (blob) => {
+      if (blob) {
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        await call('save_file', {
+          path,
+          content: uint8Array
+        });
+        ElMessage({
+          message: '已保存',
+          grouping: true,
+          type: 'success',
+        })
+      }
+    }, 'image/png')
+  } catch (error) {
+    console.error('保存失败:', error)
+    ElMessage.error('保存失败: ' + (error as Error).message)
+  }
+}
+
+const copyImage = async () => {
+  if (!dom.value) {
+    ElMessage.error('无法获取组件DOM元素')
+    return
+  }
+
+  try {
+    const canvas = await html2canvas(dom.value, {
+      backgroundColor: null,
+      scale: 3,
+      useCORS: true,
+      logging: false,
+      width: dom.value.scrollWidth,
+      height: dom.value.scrollHeight
+    })
+
+    canvas.toBlob(async (blob) => {
+      if (blob) {
+        if (navigator.clipboard && navigator.clipboard.write) {
+          const clipboardItem = new ClipboardItem({
+            'image/png': blob
+          })
+
+          await navigator.clipboard.write([clipboardItem])
+          ElMessage.success('图片已复制到剪贴板')
+        } else {
+          ElMessage.error('您的系统不支持复制图片到剪贴板')
+        }
+      }
+    })
+  } catch (error) {
+    console.error('保存失败:', error)
+    ElMessage.error('保存失败: ' + (error as Error).message)
+  }
+}
+
+defineExpose({
+  saveImage
+})
 </script>
 
 <template>
@@ -58,8 +150,8 @@ const saveImage = () => {
 
     <div class="tools-area">
       <div class="tools">
-        <el-button type="primary" @click="loadComponent" text icon="download">保存</el-button>
-        <el-button type="primary" @click="loadComponent" text icon="CopyDocument">复制</el-button>
+        <el-button type="primary" @click="saveImage" text icon="download">保存</el-button>
+        <el-button type="primary" @click="copyImage" text icon="CopyDocument">复制</el-button>
       </div>
     </div>
   </div>

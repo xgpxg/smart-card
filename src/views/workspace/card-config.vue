@@ -1,13 +1,105 @@
 <script setup lang="ts">
 import {computed, inject, onMounted, ref, watch} from "vue";
 import {ElImageViewer, ElMessage} from 'element-plus';
-import {ZoomIn} from '@element-plus/icons-vue';
 import {call, convertAudioSrc} from "@/utils/commands.ts";
-import TextCard from "@/views/workspace/text-card.vue";
+import PubSub from 'pubsub-js'
 
 // 工作空间，包含所有配置
 const workspace = inject<any>('workspace')
 const charCount = ref(workspace.value.pagination.char_count)
+
+const previewVisible = ref(false);
+const previewUrl = ref('');
+const cardStyles = ref([])
+const fonts = ref([
+  // 中文字体
+  '微软雅黑',
+  '黑体',
+  '宋体',
+  '新宋体',
+  '仿宋',
+  '楷体',
+  '新细明体',
+  '细明体',
+  '标楷体',
+  '华文细黑',
+  '华文黑体',
+  '华文楷体',
+  '华文宋体',
+  '华文中宋',
+  '华文仿宋',
+  '华文彩云',
+  '华文琥珀',
+  '华文隶书',
+  '华文行楷',
+  '方正姚体',
+  '方正舒体',
+  '方正稚艺体',
+  '方正细等线',
+
+  // 英文字体
+  'Arial',
+  'Arial Black',
+  'Helvetica',
+  'Times New Roman',
+  'Times',
+  'Courier New',
+  'Courier',
+  'Verdana',
+  'Tahoma',
+  'Trebuchet MS',
+  'Georgia',
+  'Palatino',
+  'Garamond',
+  'Comic Sans MS',
+  'Impact',
+  'Lucida Console',
+  'Lucida Sans Unicode',
+  'Geneva',
+  'Calibri',
+  'Cambria',
+  'Candara',
+  'Consolas',
+  'Constantia',
+  'Corbel',
+  'Segoe UI',
+  'Source Sans Pro',
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Montserrat',
+  'Oswald',
+  'Raleway',
+  'Ubuntu',
+
+  // 等宽字体
+  'Monaco',
+  'Menlo',
+  'Andale Mono',
+  'Lucida Console',
+  'Monaco',
+  'Consolas',
+  'Source Code Pro',
+  'Fira Code',
+  'JetBrains Mono',
+  'Cascadia Code',
+])
+const styleNameFilter = ref('')
+
+onMounted(() => {
+  loadCardStyles()
+  //loadFonts()
+})
+
+const loadCardStyles = async () => {
+  cardStyles.value = await fetch('/cards/all.json').then(res => res.json())
+}
+
+const filteredStyles = computed(() => {
+  return cardStyles.value.filter((item: any) => {
+    return item.name.includes(styleNameFilter.value.trim())
+  })
+})
 // 转换音频地址，用于播放
 const audio_url = computed(() => {
   if (!workspace.value.file_path) {
@@ -25,33 +117,6 @@ const startAudioToText = async () => {
   PubSub.publish('workspace/reload', {id: workspace.value.id})
 }
 
-
-const previewVisible = ref(false);
-const previewUrl = ref('');
-
-// 图片数据示例
-const cardStyles = [
-  {
-    id: 1,
-    name: '简约风',
-    thumbnail: '/card-styles/简约风.png',
-    preview: '/card-styles/简约风.png'
-  },
-  {
-    id: 2,
-    name: '卡通风',
-    thumbnail: '/card-styles/卡通风.png',
-    preview: '/card-styles/卡通风.png'
-  },
-  {
-    id: 3,
-    name: '商务风',
-    thumbnail: '/card-styles/商务风.png',
-    preview: '/card-styles/商务风.png'
-  },
-];
-
-const fonts = ref([])
 const loadFonts = async () => {
   if ("queryLocalFonts" in window) {
     try {
@@ -70,18 +135,11 @@ const loadFonts = async () => {
     return Promise.reject("浏览器版本太低 or 网站不安全");
   }
 }
-onMounted(() => {
-  loadFonts()
-})
+
 const handleStyleClick = (styleItem: any) => {
   workspace.value.style_id = styleItem.id
   PubSub.publish('workspace/style/change')
 }
-
-const previewImage = (styleItem: any) => {
-  previewUrl.value = styleItem.preview;
-  previewVisible.value = true;
-};
 
 // 处理 textarea 中的 Tab 键输入
 const handleTextareaKeydown = (event: KeyboardEvent) => {
@@ -116,6 +174,10 @@ watch(charCount, (newValue) => {
 
 const exampleTitle = '示例标题'
 const exampleContent = '人工智能正在深刻改变我们的生活。从智能语音助手到自动驾驶汽车，AI技术已经渗透到各个领域。机器学习算法能够分析海量数据，识别人类难以察觉的模式，为医疗诊断、金融预测和科学研究提供强大支持。深度学习网络模拟人脑神经元结构，在图像识别、自然语言处理等方面表现出色。AI不仅提高了工作效率，还创造了全新的商业模式和服务体验。然而，随着AI快速发展，数据隐私、算法偏见和就业冲击等挑战也日益凸显。未来，我们需要在推动技术创新的同时，建立完善的伦理规范和监管框架，确保AI发展真正造福人类社会，实现科技与人文的和谐统一。'
+
+const saveAll = async () => {
+  PubSub.publish('workspace/card/save')
+}
 </script>
 
 <template>
@@ -135,40 +197,33 @@ const exampleContent = '人工智能正在深刻改变我们的生活。从智�
       <template v-else>
         转文字
       </template>
-
     </el-button>
   </div>
   <div class="fill-width mt10">
     <el-input v-model="workspace.trans_text"
               type="textarea"
-              :rows="8"
+              :rows="5"
               placeholder="文本内容"
               @keydown="handleTextareaKeydown"></el-input>
+    <el-input v-model="workspace.text_title"
+              placeholder="卡片标题"
+              class="mt10"></el-input>
   </div>
-  <el-form label-width="40px" class="mt20">
+  <el-form label-width="40px" class="mt10">
     <el-form-item label="样式">
-      <el-input placeholder="搜索样式" suffix-icon="search"></el-input>
+      <el-input v-model="styleNameFilter" placeholder="搜索样式" suffix-icon="search"></el-input>
       <div class="style-gallery mt5">
         <div
-            v-for="item in cardStyles"
+            v-for="item in filteredStyles"
             :key="item.id"
             class="style-item"
             @click="handleStyleClick(item)"
+            :class="{activate:item.id === workspace.style_id}"
         >
           <div class="style-thumbnail">
-            <text-card
-                :url="`/cards/component/${item.id}.vue`"
-                :title="exampleTitle"
-                :content="exampleContent"
-                :font="workspace.font"
-                style="zoom:0.9;"
-            ></text-card>
-<!--            <img :src="item.thumbnail" :alt="item.name"/>-->
+            <img :src="item.thumbnail" :alt="item.thumbnail"/>
             <div class="style-overlay">
               <span class="style-name">{{ item.name }}</span>
-              <el-icon class="zoom-icon" @click="previewImage(item)">
-                <ZoomIn/>
-              </el-icon>
             </div>
           </div>
         </div>
@@ -205,7 +260,7 @@ const exampleContent = '人工智能正在深刻改变我们的生活。从智�
       </el-select>
     </el-form-item>
     <el-form-item label="">
-      <el-button type="primary" class="fill-width">生成卡片</el-button>
+      <el-button @click="saveAll" type="primary" class="fill-width" icon="download">保存</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -239,15 +294,16 @@ const exampleContent = '人工智能正在深刻改变我们的生活。从智�
   transition: transform 0.2s ease;
   border-radius: 8px;
   overflow: hidden;
+  padding: 4px 0;
 
-  &:hover {
-    transform: translateY(-4px);
+  &.activate {
+    border: 2px solid #ffffff;
   }
 }
 
 .style-thumbnail {
   position: relative;
-  height: 120px;
+  height: 100px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -270,7 +326,7 @@ const exampleContent = '人工智能正在深刻改变我们的生活。从智�
   left: 0;
   right: 0;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  padding: 20px 12px 12px;
+  padding: 20px 12px 6px;
   color: white;
   display: flex;
   justify-content: space-between;

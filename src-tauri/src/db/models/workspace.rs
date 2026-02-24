@@ -20,7 +20,9 @@ pub struct Workspace {
     pub file_type: Option<String>,
     /// 音频时长，默认值为 0
     pub audio_duration: Option<i32>,
-    /// 音频转文本状态: NotStart | Waiting | Processing | Ok | Failed，默认值为 'Waiting'
+    /// 文本标题
+    pub text_title: Option<String>,
+    /// 音频转文本状态: NotStart | Waiting | Processing | Ok | Failed，默认值为 'NotStart'
     pub trans_text_status: Option<TransTextStatus>,
     /// 转换后的文本，可为空
     pub trans_text: Option<String>,

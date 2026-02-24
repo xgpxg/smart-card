@@ -154,7 +154,7 @@
   }
 
   .el-message {
-    //margin-top: 50px;
+    margin-top: 40px;
     @media screen and (max-width: 500px) {
       min-width: 200px !important;
       display: flex;
@@ -272,6 +272,19 @@
     padding: 20px;
   }
 
+  .el-badge__content{
+    border: unset;
+  }
+
+  .el-loading-mask{
+    background-color: rgba(0,0,0,0.6);
+  }
+  .el-loading-spinner .path{
+    stroke: #ffffff;
+  }
+  .el-loading-spinner .el-loading-text{
+    color: #ffffff;
+  }
   /* 强制覆盖特定组件字体 */
   .el-button,
   .el-input,

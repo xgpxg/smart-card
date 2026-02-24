@@ -7,6 +7,7 @@ create table if not exists workspace
     file_size         int,                          -- 文件大小
     file_type         varchar(50),                  -- 文件类型: mp3 | ogg | wav
     audio_duration    int,                          -- 音频时长
+    text_title        varchar(500),                 -- 标题
     trans_text_status varchar(50),                  -- 音频转文本状态: NotStart | Waiting | Processing | Ok | Failed
     trans_text        text,                         -- 转换后的文本
     style_id          bigint,                       -- 样式ID

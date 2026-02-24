@@ -6,6 +6,7 @@ import {useRoute} from "vue-router";
 import {call} from "@/utils/commands.ts";
 import CardList from "@/views/workspace/card-list.vue";
 import {store} from "@/store";
+import PubSub from 'pubsub-js'
 
 const route = useRoute()
 

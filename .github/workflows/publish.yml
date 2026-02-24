@@ -1,0 +1,92 @@
+name: Publish
+
+on:
+  push:
+    tags: [ "*" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            asset: deb/myj_${{ github.ref_name }}_amd64.deb
+          - os: macos-latest
+            asset: dmg/myj_${{ github.ref_name }}_aarch64.dmg
+          - os: windows-latest
+            asset: msi/myj_${{ github.ref_name }}_x64_en-US.msi
+          - os: [ self-hosted, cuda12.6, Windows ]
+            asset: msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.6.msi
+            name: windows-cuda12.6
+            features: "-- --features cuda"
+          - os: [ self-hosted, cuda12.6, Ubuntu ]
+            asset: deb/myj_${{ github.ref_name }}_amd64-cuda12.6.deb
+            name: ubuntu-cuda12.6
+            features: "-- --features cuda"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      # 安装系统依赖 (仅在 Ubuntu 上)
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libsoup-3.0-dev libjavascriptcoregtk-4.1-dev build-essential curl wget file libssl-dev libxdo-dev
+
+      # 安装前端依赖
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # 设置前端版本号
+      - name: Set frontend version for  Ubuntu
+        if: matrix.os == 'ubuntu-22.04' || matrix.name == 'ubuntu-cuda12.6'
+        run: sed -i "s/^VITE_VERSION=.*/VITE_VERSION=${{ github.ref_name }}/" .env.production
+
+      # 设置前端版本号
+      - name: Set frontend version for  Windows
+        if: matrix.os == 'windows-latest' || matrix.name == 'windows-cuda12.6'
+        run: (Get-Content .env.production) -replace '^VITE_VERSION=.*', 'VITE_VERSION=${{ github.ref_name }}' | Set-Content .env.production
+
+        # 设置前端版本号
+      - name: Set frontend version for macOS
+        if: matrix.os == 'macos-latest'
+        run: sed -i '' "s/^VITE_VERSION=.*/VITE_VERSION=${{ github.ref_name }}/" .env.production
+
+      # 构建
+      - name: Build App
+        run: npm run tauri build ${{ matrix.features }}
+
+      # 重命名
+      - name: Rename Windows App When Using CUDA
+        if: matrix.name == 'windows-cuda12.6'
+        run: |
+          move src-tauri/target/release/bundle/msi/myj_${{ github.ref_name }}_x64_en-US.msi src-tauri/target/release/bundle/msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.6.msi
+
+      # 重命名
+      - name: Rename Ubuntu App When Using CUDA
+        if: matrix.name == 'ubuntu-cuda12.6'
+        run: |
+          mv src-tauri/target/release/bundle/deb/myj_${{ github.ref_name }}_amd64.deb src-tauri/target/release/bundle/deb/myj_${{ github.ref_name }}_amd64-cuda12.6.deb
+
+      # 创建 Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: |
+            src-tauri/target/release/bundle/${{ matrix.asset }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

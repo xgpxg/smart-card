@@ -29,6 +29,7 @@ pub fn run() {
             greet,
             server::workspace::commands::list_workspaces,
             server::workspace::commands::add_workspace,
+            server::workspace::commands::update_workspace,
             server::workspace::commands::delete_workspace,
             server::workspace::commands::get_workspace,
             server::workspace::commands::start_audio_to_text,

@@ -153,3 +153,11 @@ impl PhaseRunner for Phase {
         }
     }
 }
+
+
+async fn check_ipv6_support() -> bool {
+    match reqwest::get("http://6.ipw.cn").await {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}

@@ -1,4 +1,4 @@
-use crate::{APP_NAME, downloader};
+use crate::{APP_NAME, downloader, check_ipv6_support};
 use common::dir::AppDir;
 use std::fs;
 
@@ -79,9 +79,4 @@ pub(crate) async fn download(
     Ok(())
 }
 
-async fn check_ipv6_support() -> bool {
-    match reqwest::get("https://v6-oneapi.coderbox.cn/openapi/public/myip").await {
-        Ok(_) => true,
-        Err(_) => false,
-    }
-}
+

@@ -2,13 +2,54 @@
 import {onMounted, ref} from "vue";
 import ContextMenu from '@imengyu/vue3-context-menu'
 import {open} from '@tauri-apps/plugin-dialog'
-import {sep} from '@tauri-apps/api/path';
 import {useRouter} from "vue-router";
 import {call} from "@/utils/commands.ts";
+import {store} from "@/store";
 
 const router = useRouter()
 const kw = ref(null)
+const workspaces = ref<any[]>([])
 const selectedFiles = ref<string[]>([])
+
+onMounted(() => {
+  // 加载列表
+  loadData()
+
+  // 定时刷新
+  setInterval(() => {
+    loadData()
+  }, 1000)
+})
+
+const loadData = async () => {
+  workspaces.value = await call('list_workspaces')
+}
+
+
+const toWorkspace = async (workspace: any) => {
+  // 先加载，放到store里
+  const w = await call('get_workspace', {
+    id: workspace.id
+  })
+  store.commit('workspace/setWorkspace', w)
+
+  //跳转
+  await router.push({name: 'Workspace', params: {id: workspace.id}})
+}
+
+
+const addWorkspace = async (filePath: string) => {
+  await call('add_workspace', {
+    file_path: filePath
+  });
+}
+
+const deleteWorkspace = async (id: number) => {
+  await call('delete_workspace', {
+    id
+  });
+}
+
 const openFileDialog = async () => {
   const files = await open({
     multiple: true, // 允许选择多个文件
@@ -26,43 +67,15 @@ const openFileDialog = async () => {
     selectedFiles.value = [files]
   }
 
+  if (selectedFiles.value.length === 0) {
+    return
+  }
+
   await addWorkspace(selectedFiles.value[0])
 
   await loadData()
 
 }
-
-const workspaces = ref<any[]>([])
-
-const toWorkspace = (workspace: any) => {
-  router.push({name: 'Workspace', params: {id: workspace.id}})
-}
-
-const loadData = async () => {
-  workspaces.value = await call('list_workspaces')
-}
-
-onMounted(() => {
-  loadData()
-
-  // 定时刷新
-  setInterval(() => {
-    loadData()
-  }, 1000)
-})
-
-const addWorkspace = async (filePath: string) => {
-  await call('add_workspace', {
-    file_path: filePath
-  });
-}
-
-const deleteWorkspace = async (id: number) => {
-  await call('delete_workspace', {
-    id
-  });
-}
-
 
 const onContextMenu = (e: MouseEvent, item: any) => {
   //prevent the browser's default menu
@@ -105,14 +118,13 @@ const onContextMenu = (e: MouseEvent, item: any) => {
     <div v-for="item in workspaces" @contextmenu="onContextMenu ($event, item) ">
       <div class="audio-item flex-space-between" @click="toWorkspace(item)">
         <div class="ellipsis" :title="item.name">
-          <svg-icon v-if="item.trans_text_status === 'NotStart'" icon-class="loading" class="loading"></svg-icon>
           <svg-icon v-if="item.trans_text_status === 'Processing'" icon-class="loading" class="loading"></svg-icon>
-          <svg-icon v-if="item.trans_text_status === 'Ok'" icon-class="voice"></svg-icon>
+          <svg-icon v-else icon-class="voice"></svg-icon>
           {{ item.file_name }}
         </div>
-        <div class="ml5">
-          <el-text size="small" type="info">03:41</el-text>
-        </div>
+        <!--        <div class="ml5">
+                  <el-text size="small" type="info">03:41</el-text>
+                </div>-->
       </div>
     </div>
   </div>

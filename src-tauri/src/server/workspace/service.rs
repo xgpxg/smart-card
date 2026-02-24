@@ -1,5 +1,7 @@
-use crate::db::models::workspace::{TransTextStatus, Workspace, WorkspaceBuilder};
-use crate::db::Pool;
+use crate::db::models::workspace::{
+    Font, Pagination, TransTextStatus, Workspace, WorkspaceBuilder,
+};
+use crate::db::{tools, Pool};
 use common::id;
 use rbs::value;
 use std::fs::File;
@@ -7,7 +9,8 @@ use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Emitter};
 
 pub(crate) async fn list() -> anyhow::Result<Vec<Workspace>> {
-    let list = Workspace::select_all(Pool::get()?).await?;
+    let mut list = Workspace::select_all(Pool::get()?).await?;
+    list.sort_by(|a, b| b.id.cmp(&a.id));
     Ok(list)
 }
 
@@ -27,9 +30,34 @@ pub(crate) async fn add(file_path: String) -> anyhow::Result<()> {
             path.extension().unwrap().to_string_lossy().to_string(),
         ))
         .trans_text_status(Some(TransTextStatus::NotStart))
+        .font(Some(Font::default()))
+        .pagination(Some(Pagination::default()))
+        .create_time(Some(tools::now()))
         .build()?;
 
     Workspace::insert(Pool::get()?, &ws).await?;
+    Ok(())
+}
+
+pub(crate) async fn update(mut workspace: Workspace) -> anyhow::Result<()> {
+    workspace.pagination = Some(Pagination {
+        delimiter: workspace
+            .pagination
+            .clone()
+            .unwrap()
+            .delimiter
+            .replace("\n", "\\\\n"),
+        ..workspace.pagination.unwrap()
+    });
+    log::info!("更新数据: {:?}", workspace);
+    Workspace::update_by_map(
+        Pool::get()?,
+        &workspace,
+        value! {
+            "id": workspace.id,
+        },
+    )
+    .await?;
     Ok(())
 }
 
@@ -66,7 +94,9 @@ pub(crate) async fn start_audio_to_text(id: i64) -> anyhow::Result<()> {
     log::info!("开始识别文件: {}", path);
 
     let tx = Pool::get()?;
-    workspace.trans_text_status = Some(TransTextStatus::Processing);
+
+    let mut update = Workspace::default();
+    update.trans_text_status = Some(TransTextStatus::Processing);
     Workspace::update_by_map(
         tx,
         &workspace,
@@ -76,12 +106,15 @@ pub(crate) async fn start_audio_to_text(id: i64) -> anyhow::Result<()> {
     )
     .await?;
     let content = asr::run(path).await?;
-    workspace.trans_text = Some(content);
+
+    let mut update = Workspace::default();
+    update.id = Some(id);
+    update.trans_text = Some(content);
+    update.trans_text_status = Some(TransTextStatus::Ok);
     log::info!("识别完成: {}", path);
-    workspace.trans_text_status = Some(TransTextStatus::Ok);
     Workspace::update_by_map(
         tx,
-        &workspace,
+        &update,
         value! {
             "id": id,
         },

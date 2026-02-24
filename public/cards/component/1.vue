@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 
+interface FontConfig {
+  font_family: string
+}
+
 const props = defineProps<{
   title: string
   content: string,
-  font: {
-    type: Object,
-    default: {
-      font_family: 'Arial'
-    }
-  }
+  font: FontConfig
 }>()
 
-// 便签主色调 - 淡黄色
-const noteColor = '#FFF9C4'
 </script>
 
 <template>
@@ -69,13 +66,8 @@ const noteColor = '#FFF9C4'
 }
 
 .sticky-note:hover {
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: #FFF176;
-}
-
-.sticky-note:active {
-  transform: translateY(0);
 }
 
 .note-content {
@@ -112,8 +104,7 @@ const noteColor = '#FFF9C4'
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    linear-gradient(transparent 50%, rgba(255, 255, 255, 0.3) 50%);
+  background-image: linear-gradient(transparent 50%, rgba(255, 255, 255, 0.3) 50%);
   background-size: 100% 24px;
   pointer-events: none;
   border-radius: 8px;

@@ -8,22 +8,24 @@ const isDev = () => {
 }
 
 
-class Res{
+class Res {
     code: number;
     msg: string;
     data: any;
+
     constructor(code: number, msg: string, data: any) {
         this.code = code
         this.msg = msg
         this.data = data
     }
 }
+
 const call = async (command: string, args?: any) => {
     try {
         const res: Res = await invoke(command, args)
         if (res.code !== 0) {
             let msg = res.msg
-            if (isDev()) {
+            if (isDev() && args) {
                 msg += '，参数：'
                 msg += JSON.stringify(args)
             }

@@ -3,10 +3,10 @@ import {ref, shallowRef, onMounted} from "vue";
 import {loadRemoteComponent} from '@/utils/sfc-loader'
 
 const props = defineProps({
+  url: {type: String, required: true},
   title: {type: String, required: true},
   content: {type: String, required: true},
-  options: {type: Object},
-  remoteUrl: {type: String, required: true}
+  font: {type: Object, default: () => ({font_family: 'Arial', font_size: '14'})},
 })
 
 const dom = ref()
@@ -20,7 +20,7 @@ const loadComponent = async () => {
   error.value = null
 
   try {
-    remoteComponent.value = await loadRemoteComponent(props.remoteUrl)
+    remoteComponent.value = await loadRemoteComponent(props.url)
   } catch (err) {
     error.value = err
   } finally {
@@ -31,6 +31,10 @@ const loadComponent = async () => {
 onMounted(() => {
   loadComponent()
 })
+
+const saveImage = () => {
+
+ }
 </script>
 
 <template>
@@ -48,6 +52,7 @@ onMounted(() => {
         :is="remoteComponent"
         :title="title"
         :content="content"
+        :font="font"
         class="remote-component-wrapper"
     />
 

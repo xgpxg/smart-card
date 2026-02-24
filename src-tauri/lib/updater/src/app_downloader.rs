@@ -29,10 +29,3 @@ pub(crate) async fn download(progress_handler: impl Fn(u64, u64)) -> anyhow::Res
 
     Ok(download_file)
 }
-
-async fn check_ipv6_support() -> bool {
-    match reqwest::get("https://v6-oneapi.coderbox.cn/openapi/public/myip").await {
-        Ok(_) => true,
-        Err(_) => false,
-    }
-}

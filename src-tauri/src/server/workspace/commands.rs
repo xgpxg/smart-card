@@ -20,6 +20,14 @@ pub(crate) async fn add_workspace(file_path: String) -> Res<()> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub(crate) async fn update_workspace(workspace: Workspace) -> Res<()> {
+    match service::update(workspace).await {
+        Ok(()) => Res::success(()),
+        Err(e) => Res::error(e.to_string().as_str()),
+    }
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub(crate) async fn delete_workspace(id: i64) -> Res<()> {
     match service::delete(id).await {
         Ok(()) => Res::success(()),

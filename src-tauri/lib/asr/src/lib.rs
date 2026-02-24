@@ -1,17 +1,16 @@
+use aha::models::GenerateModel;
 use aha::models::WhichModel::Qwen3ASR0_6B;
 use aha::models::qwen3_asr::generate::Qwen3AsrGenerateModel;
-use aha::models::{GenerateModel, ModelInstance, WhichModel};
 use aha_openai_dive::v1::resources::chat::{
     AudioUrlType, ChatCompletionParameters, ChatMessage, ChatMessageAudioContentPart,
     ChatMessageContent, ChatMessageContentPart,
 };
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::{Arc, Mutex, OnceLock};
-
 static MODEL: OnceLock<Arc<Mutex<Qwen3AsrGenerateModel>>> = OnceLock::new();
 
 pub async fn load_model(model_save_path: &str) -> anyhow::Result<()> {
-    aha::utils::download_model(Qwen3ASR0_6B.model_id(), model_save_path, 3).await?;
+    //aha::utils::download_model(Qwen3ASR0_6B.model_id(), model_save_path, 3).await?;
 
     let model_path = Path::new(model_save_path).join(Qwen3ASR0_6B.model_id());
 

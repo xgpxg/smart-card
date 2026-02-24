@@ -12,8 +12,8 @@ const props = defineProps<{
   }
 }>()
 
-// 便签主色调 - 淡黄色
-const noteColor = '#FFF9C4'
+// 科技蓝主色调
+const noteColor = '#1a73e8'
 </script>
 
 <template>
@@ -21,8 +21,8 @@ const noteColor = '#FFF9C4'
       class="sticky-note"
       :style="{ fontFamily: props.font.font_family }"
   >
-    <!-- 顶部胶带效果 -->
-    <div class="tape"></div>
+    <!-- 顶部科技线条 -->
+    <div class="tech-line"></div>
 
     <!-- 便签内容 -->
     <div class="note-content">
@@ -37,8 +37,8 @@ const noteColor = '#FFF9C4'
       </div>
     </div>
 
-    <!-- 底部阴影 -->
-    <div class="note-shadow"></div>
+    <!-- 底部科技光效 -->
+    <div class="tech-glow"></div>
   </div>
 </template>
 
@@ -48,63 +48,74 @@ const noteColor = '#FFF9C4'
   min-height: 100px;
   padding: 24px;
   margin: 16px;
-  background-color: #FFF9C4;
-  border: 1px solid #FFF59D;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  box-shadow: 
+    0 0 20px rgba(26, 115, 232, 0.3),
+    inset 0 0 30px rgba(26, 115, 232, 0.1);
   cursor: pointer;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
-.sticky-note::before {
-  content: '';
+.tech-line {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background-color: #FFEB3B;
-  border-radius: 8px 8px 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1a73e8 0%, #8ab4f8 50%, #1a73e8 100%);
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 0 10px rgba(26, 115, 232, 0.8);
 }
 
 .sticky-note:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: #FFF176;
+  border-color: #8ab4f8;
+  box-shadow: 
+    0 0 30px rgba(26, 115, 232, 0.5),
+    inset 0 0 40px rgba(26, 115, 232, 0.2);
 }
 
 .sticky-note:active {
-  transform: translateY(0);
+  /* 移除点击动画 */
 }
 
 .note-content {
   position: relative;
   z-index: 2;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(138, 180, 248, 0.2);
 }
 
 .note-title {
   font-size: 18px;
-  font-weight: 500;
-  color: #5D4037;
+  font-weight: 600;
+  color: #e2e8f0;
   text-align: left;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #FFF59D;
+  border-bottom: 1px solid rgba(138, 180, 248, 0.3);
   line-height: 1.4;
+  text-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
+  letter-spacing: 0.5px;
 }
 
 .note-body {
   font-size: 15px;
   line-height: 1.6;
-  color: #4E342E;
+  color: #cbd5e1;
   white-space: pre-wrap;
   word-wrap: break-word;
   text-align: left;
   min-height: 50px;
+  font-feature-settings: 'zero' 1;
 }
 
-/* 简洁的纹理效果 */
+/* 科技网格背景 */
 .sticky-note::after {
   content: '';
   position: absolute;
@@ -113,11 +124,25 @@ const noteColor = '#FFF9C4'
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(transparent 50%, rgba(255, 255, 255, 0.3) 50%);
-  background-size: 100% 24px;
+    linear-gradient(rgba(26, 115, 232, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 115, 232, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
   pointer-events: none;
-  border-radius: 8px;
-  opacity: 0.1;
+  border-radius: 12px;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.tech-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent 0%, #1a73e8 50%, transparent 100%);
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 0 15px rgba(26, 115, 232, 0.6);
+  opacity: 0.7;
 }
 
 /* 响应式设计 */

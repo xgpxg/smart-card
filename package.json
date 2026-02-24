@@ -10,18 +10,20 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@imengyu/vue3-context-menu": "^1.5.4",
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2.4.0",
+    "@tauri-apps/plugin-opener": "^2",
     "animate.css": "^4.1.1",
     "element-plus": "^2.10.4",
     "fast-glob": "^3.3.3",
+    "font-list": "^2.0.2",
     "pubsub-js": "^1.9.5",
     "vue": "^3.5.13",
     "vue-router": "^4.5.1",
     "vue3-sfc-loader": "^0.9.5",
-    "@imengyu/vue3-context-menu": "^1.5.4"
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

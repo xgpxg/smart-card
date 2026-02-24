@@ -1,7 +1,7 @@
 use crate::{db, VERSION};
 use anyhow::Context;
 use common::dir::AppDir;
-use common::{app_dir, data_dir};
+use common::{app_dir, data_dir, resources_dir};
 use serde::Serialize;
 use std::fs;
 use std::os::windows::process::CommandExt;
@@ -44,7 +44,7 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
             }
         };
         #[cfg(debug_assertions)]
-        let pass =false;// true;
+        let pass = false; // true;
         if pass {
             // 还未执行变更，显示启动屏，提示正在执行变更
             if fs::exists(app_dir!(".update"))? {
@@ -190,6 +190,15 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
         // 这里再次清理是因为防止某些情况下，更新完成后，.update未被删除掉
         let _ = fs::remove_file(app_dir!(".update"));
 
+        // 加载模型
+        let model_save_path = resources_dir!("model");
+        if !model_save_path.exists() {
+            fs::create_dir_all(&model_save_path)?;
+        }
+        log::info!("正在加载模型");
+        asr::load_model(&model_save_path.display().to_string()).await?;
+        log::info!("模型加载完成");
+
         // 关闭启动屏
         splash_window.close()?;
 
@@ -197,17 +206,6 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
         // 显示主窗口
         main_window.show()?;
 
-        Ok::<(), anyhow::Error>(())
-    });
-
-    tauri::async_runtime::spawn(async move {
-        let model_save_path = data_dir!("models");
-        if !model_save_path.exists() {
-            fs::create_dir_all(&model_save_path)?;
-        }
-        log::info!("正在加载模型");
-        asr::load_model(&model_save_path.display().to_string()).await?;
-        log::info!("模型加载完成");
         Ok::<(), anyhow::Error>(())
     });
 

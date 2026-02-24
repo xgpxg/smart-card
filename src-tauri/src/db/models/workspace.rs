@@ -27,9 +27,9 @@ pub struct Workspace {
     /// 样式 ID
     pub style_id: Option<i64>,
     /// 字体配置，JSON 格式
-    pub font: Option<String>,
+    pub font: Option<Font>,
     /// 分页方式: Auto | Single | CharCount | Delimiter，默认值为 'Auto'
-    pub pagination: Option<String>,
+    pub pagination: Option<Pagination>,
     /// 创建人ID
     pub create_user_id: Option<i64>,
     /// 修改人ID
@@ -56,6 +56,46 @@ pub enum TransTextStatus {
     Processing,
     Ok,
     Failed,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Font {
+    pub font_family: String,
+    pub font_size: usize,
+}
+impl Default for Font {
+    fn default() -> Self {
+        Font {
+            font_family: "Arial".to_string(),
+            font_size: 14,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Pagination {
+    pub page_type: PaginationType,
+    pub char_count: usize,
+    pub delimiter: String,
+}
+
+impl Default for Pagination {
+    fn default() -> Self {
+        Pagination {
+            page_type: PaginationType::Auto,
+            char_count: 300,
+            delimiter: "\\n".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub enum PaginationType {
+    #[default]
+    Auto,
+    Single,
+    CharCount,
+    Delimiter,
 }
 
 crud!(Workspace {});

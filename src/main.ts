@@ -7,14 +7,17 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import 'virtual:svg-icons-register';
 import SvgIcon from '@/components/SvgIcon/index.vue'
 import router from './router'
+import {store} from './store'
 import PubSub from 'pubsub-js'
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import 'animate.css';
 
 import '@/styles/index.scss'
 
 const app = createApp(App)
 
 app.use(router)
+app.use(store)
 app.use(ElementPlus, {locale: zhCn,})
 app.use(PubSub)
 app.component('SvgIcon', SvgIcon)

@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import {computed, inject, reactive, ref} from "vue";
-import {ElImageViewer} from 'element-plus';
+import {computed, inject, onMounted, ref, watch} from "vue";
+import {ElImageViewer, ElMessage} from 'element-plus';
 import {ZoomIn} from '@element-plus/icons-vue';
-import {Card} from "./card.ts";
 import {call, convertAudioSrc} from "@/utils/commands.ts";
-
-const value = defineModel<Card>({
-  default: () => reactive(new Card('', ''))
-});
+import TextCard from "@/views/workspace/text-card.vue";
 
 // 工作空间，包含所有配置
 const workspace = inject<any>('workspace')
-
+const charCount = ref(workspace.value.pagination.char_count)
 // 转换音频地址，用于播放
-const audio_url = computed(() => convertAudioSrc(workspace.value.file_path))
+const audio_url = computed(() => {
+  if (!workspace.value.file_path) {
+    return null
+  }
+  return convertAudioSrc(workspace.value.file_path)
+})
 
 // 开始音频转文字
 const startAudioToText = async () => {
+  workspace.value.trans_text_status = 'Processing'
   await call('start_audio_to_text', {
     id: workspace.value.id
   })
@@ -30,95 +32,182 @@ const previewUrl = ref('');
 // 图片数据示例
 const cardStyles = [
   {
-    id: '1',
+    id: 1,
     name: '简约风',
     thumbnail: '/card-styles/简约风.png',
     preview: '/card-styles/简约风.png'
   },
   {
-    id: '2',
+    id: 2,
     name: '卡通风',
     thumbnail: '/card-styles/卡通风.png',
     preview: '/card-styles/卡通风.png'
   },
   {
-    id: '3',
+    id: 3,
     name: '商务风',
     thumbnail: '/card-styles/商务风.png',
     preview: '/card-styles/商务风.png'
   },
 ];
 
+const fonts = ref([])
+const loadFonts = async () => {
+  if ("queryLocalFonts" in window) {
+    try {
+      const availableFonts = await (window as any).queryLocalFonts();
+      if (!availableFonts.length) {
+        return [];
+      }
+
+      fonts.value = availableFonts.map((font: any) => {
+        return font.fullName
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  } else {
+    return Promise.reject("浏览器版本太低 or 网站不安全");
+  }
+}
+onMounted(() => {
+  loadFonts()
+})
 const handleStyleClick = (styleItem: any) => {
+  workspace.value.style_id = styleItem.id
+  PubSub.publish('workspace/style/change')
+}
+
+const previewImage = (styleItem: any) => {
   previewUrl.value = styleItem.preview;
   previewVisible.value = true;
 };
 
+// 处理 textarea 中的 Tab 键输入
+const handleTextareaKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Tab') {
+    event.preventDefault();
+
+    const target = event.target as HTMLTextAreaElement;
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+
+    // 在光标位置插入制表符
+    const value = target.value;
+    target.value = value.substring(0, start) + '\t' + value.substring(end);
+
+    // 更新光标位置
+    const newCursorPos = start + 1;
+    target.selectionStart = newCursorPos;
+    target.selectionEnd = newCursorPos;
+
+    // 触发 Vue 的响应式更新
+    workspace.value.trans_text = target.value;
+  }
+};
+
+watch(charCount, (newValue) => {
+  const n = Number(newValue)
+  if (n && n > 50) {
+    workspace.value.pagination.char_count = n
+  }
+})
+
+
+const exampleTitle = '示例标题'
+const exampleContent = '人工智能正在深刻改变我们的生活。从智能语音助手到自动驾驶汽车，AI技术已经渗透到各个领域。机器学习算法能够分析海量数据，识别人类难以察觉的模式，为医疗诊断、金融预测和科学研究提供强大支持。深度学习网络模拟人脑神经元结构，在图像识别、自然语言处理等方面表现出色。AI不仅提高了工作效率，还创造了全新的商业模式和服务体验。然而，随着AI快速发展，数据隐私、算法偏见和就业冲击等挑战也日益凸显。未来，我们需要在推动技术创新的同时，建立完善的伦理规范和监管框架，确保AI发展真正造福人类社会，实现科技与人文的和谐统一。'
 </script>
 
 <template>
-  <div>
-    <div class="flex">
-      <audio
-          :key="audio_url" controls class="fill-width" controlslist="nodownload noplaybackrate" style="height: 32px">
-        <source :src="audio_url" type="audio/mp3">
-        无法播放此音频。
-      </audio>
-      <el-button @click="startAudioToText" type="primary" class="ml5">转文字</el-button>
-    </div>
-    <div class="fill-width mt10">
-      <el-input v-model="workspace.trans_text" type="textarea" :rows="8" placeholder="文本内容"></el-input>
-    </div>
-    <el-form label-width="40px" class="mt20">
-      <el-form-item label="样式">
-        <el-input placeholder="搜索样式" suffix-icon="search"></el-input>
-        <div class="style-gallery mt5">
-          <div
-              v-for="styleItem in cardStyles"
-              :key="styleItem.id"
-              class="style-item"
-              @click="handleStyleClick(styleItem)"
-          >
-            <div class="style-thumbnail">
-              <img :src="styleItem.thumbnail" :alt="styleItem.name"/>
-              <div class="style-overlay">
-                <span class="style-name">{{ styleItem.name }}</span>
-                <el-icon class="zoom-icon">
-                  <ZoomIn/>
-                </el-icon>
-              </div>
+  <div class="flex">
+    <audio :key="audio_url"
+           controls controlslist="nodownload noplaybackrate"
+           class="fill-width"
+           style="height: 32px">
+      <source :src="audio_url" type="audio/mp3">
+      无法播放此音频。
+    </audio>
+    <el-button @click="startAudioToText" type="primary" class="ml5"
+               :loading="workspace.trans_text_status==='Processing'">
+      <template v-if="workspace.trans_text_status==='Processing'">
+        处理中
+      </template>
+      <template v-else>
+        转文字
+      </template>
+
+    </el-button>
+  </div>
+  <div class="fill-width mt10">
+    <el-input v-model="workspace.trans_text"
+              type="textarea"
+              :rows="8"
+              placeholder="文本内容"
+              @keydown="handleTextareaKeydown"></el-input>
+  </div>
+  <el-form label-width="40px" class="mt20">
+    <el-form-item label="样式">
+      <el-input placeholder="搜索样式" suffix-icon="search"></el-input>
+      <div class="style-gallery mt5">
+        <div
+            v-for="item in cardStyles"
+            :key="item.id"
+            class="style-item"
+            @click="handleStyleClick(item)"
+        >
+          <div class="style-thumbnail">
+            <text-card
+                :url="`/cards/component/${item.id}.vue`"
+                :title="exampleTitle"
+                :content="exampleContent"
+                :font="workspace.font"
+                style="zoom:0.9;"
+            ></text-card>
+<!--            <img :src="item.thumbnail" :alt="item.name"/>-->
+            <div class="style-overlay">
+              <span class="style-name">{{ item.name }}</span>
+              <el-icon class="zoom-icon" @click="previewImage(item)">
+                <ZoomIn/>
+              </el-icon>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 图片预览组件 -->
-        <el-image-viewer
-            v-if="previewVisible"
-            :url-list="[previewUrl]"
-            @close="previewVisible = false"
-        />
-      </el-form-item>
-      <el-form-item label="分页">
-        <el-radio-group>
-          <el-radio-button label="1">自动</el-radio-button>
-          <el-radio-button label="2">单页</el-radio-button>
-          <el-radio-button label="2">按字数拆分</el-radio-button>
-          <el-radio-button label="2">分隔符</el-radio-button>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="字体">
-        <el-select v-model="value['font']" :teleported="false">
-          <el-option label="1" value="1">自动</el-option>
-          <el-option label="2" value="2">单张</el-option>
-          <el-option label="3" value="3">按字数拆分</el-option>
-          <el-option label="4" value="4">自定义</el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="">
-        <el-button type="primary" class="fill-width">生成卡片</el-button>
-      </el-form-item>
-    </el-form>
-  </div>
+      <!-- 图片预览组件 -->
+      <el-image-viewer
+          v-if="previewVisible"
+          :url-list="[previewUrl]"
+          @close="previewVisible = false"
+      />
+    </el-form-item>
+    <el-form-item label="分页">
+      <el-radio-group v-model="workspace.pagination.page_type">
+        <el-radio-button label="Auto" value="Auto">自动</el-radio-button>
+        <el-radio-button label="Single" value="Single">单页</el-radio-button>
+        <el-radio-button label="Delimiter" value="Delimiter" @click="workspace.pagination.delimiter='\\n'">换行符
+        </el-radio-button>
+        <el-radio-button label="CharCount" value="CharCount">按字数拆分
+        </el-radio-button>
+      </el-radio-group>
+      <el-input v-if="workspace.pagination.page_type ==='CharCount'"
+                v-model="charCount"
+                placeholder="字数" class="mt5" minlength="1" maxlength="10"></el-input>
+      <!--      <el-input v-if="workspace.pagination.page_type ==='Delimiter'"
+                      v-model="workspace.pagination.delimiter"
+                      placeholder="分隔符" class="mt5" maxlength="8"></el-input>-->
+    </el-form-item>
+    <el-form-item label="字体">
+      <el-select v-model="workspace.font.font_family" :teleported="false" filterable>
+        <el-option v-for="item in fonts" :label="item" :value="item">
+          {{ item }}
+        </el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item label="">
+      <el-button type="primary" class="fill-width">生成卡片</el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 <style scoped lang="scss">

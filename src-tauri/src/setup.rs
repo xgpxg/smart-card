@@ -131,7 +131,7 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
                             .creation_flags(CREATE_NO_WINDOW)
                             .spawn();
                         #[cfg(not(target_os = "windows"))]
-                        let _ = command.arg("/C").arg("start").arg(&file_path).spawn();
+                        let _ = command.arg("-c").arg("start").arg(&file_path).spawn();
                         // 关闭本程序
                         exit(0);
                     }

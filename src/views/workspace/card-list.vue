@@ -14,7 +14,7 @@ onMounted(() => {
   splitText()
 });
 
-watch(()=>workspace.value.trans_text, (newValue) => {
+watch(() => workspace.value, (newValue) => {
   splitText()
 }, {deep: true})
 

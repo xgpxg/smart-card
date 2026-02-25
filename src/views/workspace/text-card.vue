@@ -150,7 +150,7 @@ defineExpose({
 
     <div class="tools-area">
       <div class="tools">
-        <el-button type="primary" @click="saveImage" text icon="download">保存</el-button>
+        <el-button type="primary" @click="saveImage(null)" text icon="download">保存</el-button>
         <el-button type="primary" @click="copyImage" text icon="CopyDocument">复制</el-button>
       </div>
     </div>

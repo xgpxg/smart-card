@@ -123,12 +123,15 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
                     Some(file_path) => {
                         log::info!("Installer downloaded，file path: {}", file_path);
                         const CREATE_NO_WINDOW: u32 = 0x08000000;
+                        #[cfg(target_os = "windows")]
                         let _ = command
                             .arg("/C")
                             .arg("start")
                             .arg(&file_path)
                             .creation_flags(CREATE_NO_WINDOW)
                             .spawn();
+                        #[cfg(not(target_os = "windows"))]
+                        let _ = command.arg("/C").arg("start").arg(&file_path).spawn();
                         // 关闭本程序
                         exit(0);
                     }

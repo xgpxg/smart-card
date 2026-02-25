@@ -50,3 +50,6 @@ cuda = ["asr/cuda"]
 [workspace]
 members = ["lib/asr", "lib/common", "lib/updater"]
 
+
+[patch.crates-io]
+esaxx-rs = { git = "https://github.com/xgpxg/esaxx-rs.git" }

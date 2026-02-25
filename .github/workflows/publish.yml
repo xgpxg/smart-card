@@ -13,7 +13,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            asset: deb/myj_${{ github.ref_name }}_amd64.deb
+            asset: appimage/myj_${{ github.ref_name }}_amd64.AppImage
           - os: macos-latest
             asset: dmg/myj_${{ github.ref_name }}_aarch64.dmg
           - os: windows-latest
@@ -23,7 +23,7 @@ jobs:
             name: windows-cuda12.6
             features: "-- --features cuda"
           - os: [ self-hosted, cuda12.6, Ubuntu ]
-            asset: deb/myj_${{ github.ref_name }}_amd64-cuda12.6.deb
+            asset: appimage/myj_${{ github.ref_name }}_amd64-cuda12.6.AppImage
             name: ubuntu-cuda12.6
             features: "-- --features cuda"
     runs-on: ${{ matrix.os }}
@@ -78,7 +78,7 @@ jobs:
       - name: Rename Ubuntu App When Using CUDA
         if: matrix.name == 'ubuntu-cuda12.6'
         run: |
-          mv src-tauri/target/release/bundle/deb/myj_${{ github.ref_name }}_amd64.deb src-tauri/target/release/bundle/deb/myj_${{ github.ref_name }}_amd64-cuda12.6.deb
+          mv src-tauri/target/release/bundle/appimage/myj_${{ github.ref_name }}_amd64.AppImage src-tauri/target/release/bundle/appimage/myj_${{ github.ref_name }}_amd64-cuda12.6.AppImage
 
       # 创建 Release
       - name: Create Release

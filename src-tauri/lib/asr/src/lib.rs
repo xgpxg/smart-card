@@ -45,6 +45,5 @@ pub async fn run(file_path: &str) -> anyhow::Result<String> {
 
     // 替换从开头到<asr_text>的部分
     let content = content.split("<asr_text>").collect::<Vec<&str>>()[1];
-    println!("{}", content);
     Ok(content.to_string())
 }

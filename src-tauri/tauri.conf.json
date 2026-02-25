@@ -33,7 +33,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost http://tauri.localhost data:; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://ipc.localhost; media-src http://asset.localhost;",
+      "csp": null,
       "assetProtocol": {
         "enable": true,
         "scope": [
@@ -44,7 +44,11 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": [
+      "appimage",
+      "msi",
+      "dmg"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

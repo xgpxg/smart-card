@@ -52,7 +52,6 @@ pub(crate) async fn update(mut workspace: Workspace) -> anyhow::Result<()> {
             .replace("\n", "\\\\n"),
         ..workspace.pagination.unwrap()
     });
-    log::info!("更新数据: {:?}", workspace);
     Workspace::update_by_map(
         Pool::get()?,
         &workspace,
@@ -99,7 +98,6 @@ pub(crate) async fn start_audio_to_text(id: i64) -> anyhow::Result<()> {
     let tx = Pool::get()?;
 
     let mut update = Workspace::default();
-    update.id = Some(id);
     update.trans_text_status = Some(TransTextStatus::Processing);
     Workspace::update_by_map(
         tx,
@@ -111,7 +109,6 @@ pub(crate) async fn start_audio_to_text(id: i64) -> anyhow::Result<()> {
     .await?;
     let content = asr::run(path).await?;
 
-    let mut update = Workspace::default();
     update.trans_text = Some(content);
     update.trans_text_status = Some(TransTextStatus::Ok);
     log::info!("识别完成: {}", path);

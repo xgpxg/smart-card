@@ -197,15 +197,6 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
         // 这里再次清理是因为防止某些情况下，更新完成后，.update未被删除掉
         let _ = fs::remove_file(app_dir!(".update"));
 
-        // 加载模型
-        let model_save_path = resources_dir!("model");
-        if !model_save_path.exists() {
-            fs::create_dir_all(&model_save_path)?;
-        }
-        log::info!("正在加载模型");
-        asr::load_model(&model_save_path.display().to_string()).await?;
-        log::info!("模型加载完成");
-
         // 关闭启动屏
         splash_window.close()?;
 
@@ -246,6 +237,15 @@ async fn init() -> anyhow::Result<()> {
     // 初始化数据库
     db::init().await?;
     log::info!("数据库初始化完成");
+
+    // 加载模型
+    let model_save_path = resources_dir!("model");
+    if !model_save_path.exists() {
+        fs::create_dir_all(&model_save_path)?;
+    }
+    log::info!("正在加载模型");
+    asr::load_model(&model_save_path.display().to_string()).await?;
+    log::info!("模型加载完成");
 
     Ok(())
 }

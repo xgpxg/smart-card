@@ -256,6 +256,7 @@ dependencies = [
  "aha_openai_dive",
  "anyhow",
  "candle-core",
+ "log",
  "serde",
  "serde_json",
 ]

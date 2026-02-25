@@ -304,6 +304,7 @@ const saveAll = async () => {
 .style-thumbnail {
   position: relative;
   height: 100px;
+  width: 100%;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

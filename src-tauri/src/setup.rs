@@ -4,7 +4,6 @@ use common::dir::AppDir;
 use common::{app_dir, data_dir, resources_dir};
 use serde::Serialize;
 use std::fs;
-use std::os::windows::process::CommandExt;
 use std::process::{exit, Command};
 use tauri::{App, Emitter, Manager};
 use updater::{PhaseRunner, PhaseStatus};
@@ -122,16 +121,21 @@ pub(crate) fn setup(app: &mut App) -> anyhow::Result<()> {
                     }
                     Some(file_path) => {
                         log::info!("Installer downloaded，file path: {}", file_path);
-                        const CREATE_NO_WINDOW: u32 = 0x08000000;
                         #[cfg(target_os = "windows")]
-                        let _ = command
-                            .arg("/C")
-                            .arg("start")
-                            .arg(&file_path)
-                            .creation_flags(CREATE_NO_WINDOW)
-                            .spawn();
+                        {
+                            use std::os::windows::process::CommandExt;
+                            const CREATE_NO_WINDOW: u32 = 0x08000000;
+                            let _ = command
+                                .arg("/C")
+                                .arg("start")
+                                .arg(&file_path)
+                                .creation_flags(CREATE_NO_WINDOW)
+                                .spawn();
+                        }
                         #[cfg(not(target_os = "windows"))]
-                        let _ = command.arg("-c").arg("start").arg(&file_path).spawn();
+                        {
+                            let _ = command.arg("-c").arg("start").arg(&file_path).spawn();
+                        }
                         // 关闭本程序
                         exit(0);
                     }

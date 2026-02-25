@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "墨因笺",
+        "title": "墨音笺",
         "url": "/init",
         "width": 910,
         "height": 670,

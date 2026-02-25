@@ -21,7 +21,7 @@ tauri-build = { version = "2", features = [] }
 common = { path = "lib/common" }
 asr = { path = "lib/asr" }
 updater = { path = "lib/updater" }
-tauri = { version = "2", features = ["protocol-asset", "devtools"] }
+tauri = { version = "2", features = ["protocol-asset"] }
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"

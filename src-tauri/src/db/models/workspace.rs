@@ -86,7 +86,7 @@ impl Default for Pagination {
         Pagination {
             page_type: PaginationType::Auto,
             char_count: 300,
-            delimiter: "\\n".to_string(),
+            delimiter: "\\\\n".to_string(),
         }
     }
 }

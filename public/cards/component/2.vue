@@ -47,7 +47,7 @@ const borderColor = '#334155'
   position: relative;
   display: flex;
   min-height: 200px;
-  margin: 16px;
+  margin: 0;
   background: #0f172a;
   border: 1px solid #334155;
   border-radius: 8px;

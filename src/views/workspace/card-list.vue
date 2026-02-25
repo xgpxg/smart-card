@@ -7,16 +7,14 @@ import {ElLoading} from "element-plus";
 import PubSub from 'pubsub-js'
 
 const workspace = inject<any>('workspace')
-
-const pagination = workspace.value.pagination
-
 const cards = ref<any[]>([])
 const cardRefs = ref([])
+
 onMounted(() => {
   splitText()
 });
 
-watch(workspace.value, (newValue) => {
+watch(()=>workspace.value.trans_text, (newValue) => {
   splitText()
 }, {deep: true})
 
@@ -55,27 +53,71 @@ const splitTextWithAuto = () => {
   const text = workspace.value.trans_text || ""
   const chunkSize = 300; // 目标字符数
 
-  // 支持中英文标点的句子分割正则表达式
-  const sentences = text.match(/[^.!?。！？]*[.!?。！？]+/g) || [text];
+  // 更完善的文本分割逻辑
   const chunks = [];
   let currentChunk = "";
 
-  for (const sentence of sentences) {
-    if ((currentChunk + sentence).length <= chunkSize) {
-      currentChunk += sentence; // 累加句子
-    } else {
+  // 首先按段落分割（双换行符）
+  const paragraphs = text.split(/\n\s*\n/);
+
+  for (const paragraph of paragraphs) {
+    // 清理段落前后空白
+    const cleanParagraph = paragraph.trim();
+    if (!cleanParagraph) continue;
+
+    // 如果单个段落就超过限制，需要进一步分割
+    if (cleanParagraph.length > chunkSize) {
+      // 先保存当前块（如果有的话）
       if (currentChunk) {
-        chunks.push(currentChunk.trim()); // 保存当前块
+        chunks.push(currentChunk.trim());
+        currentChunk = "";
       }
-      currentChunk = sentence; // 开始新块
+
+      // 按句子分割长段落
+      const sentences = cleanParagraph.match(/[^.!?。！？\n]*[.!?。！？\n]+/g) || [cleanParagraph];
+
+      for (const sentence of sentences) {
+        const cleanSentence = sentence.trim();
+        if (!cleanSentence) continue;
+
+        if ((currentChunk + cleanSentence).length <= chunkSize) {
+          currentChunk += cleanSentence + " ";
+        } else {
+          if (currentChunk) {
+            chunks.push(currentChunk.trim());
+          }
+          // 如果单个句子就超过限制，强制分割
+          if (cleanSentence.length > chunkSize) {
+            // 按字符数强制分割
+            for (let i = 0; i < cleanSentence.length; i += chunkSize) {
+              chunks.push(cleanSentence.substring(i, i + chunkSize));
+            }
+            currentChunk = "";
+          } else {
+            currentChunk = cleanSentence + " ";
+          }
+        }
+      }
+    } else {
+      // 段落长度在限制内
+      if ((currentChunk + cleanParagraph).length <= chunkSize) {
+        currentChunk += cleanParagraph + "\n\n";
+      } else {
+        if (currentChunk) {
+          chunks.push(currentChunk.trim());
+        }
+        currentChunk = cleanParagraph + "\n\n";
+      }
     }
   }
 
+  // 保存最后的块
   if (currentChunk) {
-    chunks.push(currentChunk.trim()); // 保存最后一块
+    chunks.push(currentChunk.trim());
   }
 
-  cards.value = chunks;
+  // 过滤空字符串并设置结果
+  cards.value = chunks.filter(chunk => chunk.length > 0);
 }
 
 const splitTextWithCharCount = () => {

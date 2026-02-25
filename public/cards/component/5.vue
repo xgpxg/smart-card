@@ -46,7 +46,7 @@ const noteColor = '#5d4037'
   position: relative;
   min-height: 100px;
   padding: 24px;
-  margin: 16px;
+  margin: 0;
   background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%);
   border: 2px solid #a1887f;
   border-radius: 16px;

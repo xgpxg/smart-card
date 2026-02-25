@@ -1,3 +1,4 @@
+use crate::common::utils::check_is_audio;
 use crate::db::models::workspace::{
     Font, Pagination, TransTextStatus, Workspace, WorkspaceBuilder,
 };
@@ -15,6 +16,7 @@ pub(crate) async fn list() -> anyhow::Result<Vec<Workspace>> {
 }
 
 pub(crate) async fn add(file_path: String) -> anyhow::Result<()> {
+    check_is_audio(&file_path)?;
     let path = Path::new(&file_path);
     let ws = WorkspaceBuilder::default()
         .id(Some(id::next()))
@@ -32,6 +34,7 @@ pub(crate) async fn add(file_path: String) -> anyhow::Result<()> {
         .trans_text_status(Some(TransTextStatus::NotStart))
         .font(Some(Font::default()))
         .pagination(Some(Pagination::default()))
+        .style_id(Some(1))
         .create_time(Some(tools::now()))
         .build()?;
 

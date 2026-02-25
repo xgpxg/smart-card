@@ -7,6 +7,7 @@ import {call} from "@/utils/commands.ts";
 import CardList from "@/views/workspace/card-list.vue";
 import {store} from "@/store";
 import PubSub from 'pubsub-js'
+import DropHandler from "@/views/welcome/drop-handler.vue";
 
 const route = useRoute()
 
@@ -57,6 +58,7 @@ watch(workspace, (newValue) => {
       </el-col>
     </el-row>
   </div>
+  <drop-handler></drop-handler>
 </template>
 
 <style scoped lang="scss">

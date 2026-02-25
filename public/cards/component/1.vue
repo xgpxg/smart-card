@@ -44,7 +44,7 @@ const props = defineProps<{
   position: relative;
   min-height: 100px;
   padding: 24px;
-  margin: 16px;
+  margin: 0;
   background-color: #FFF9C4;
   border: 1px solid #FFF59D;
   border-radius: 8px;

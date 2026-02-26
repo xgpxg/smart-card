@@ -22,9 +22,9 @@ jobs:
             asset: msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.6.msi
             name: windows-cuda12.6
             features: "-- --features cuda"
-          - os: [ self-hosted, cuda12.6, Ubuntu ]
-            asset: appimage/myj_${{ github.ref_name }}_amd64-cuda12.6.AppImage
-            name: ubuntu-cuda12.6
+          - os: [ self-hosted, cuda12.8, Ubuntu ]
+            asset: appimage/myj_${{ github.ref_name }}_amd64-cuda12.8.AppImage
+            name: ubuntu-cuda12.8
             features: "-- --features cuda"
     runs-on: ${{ matrix.os }}
     steps:

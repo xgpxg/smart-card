@@ -107,7 +107,6 @@ const noteColor = '#5d4037'
   border-bottom: 2px solid rgba(161, 136, 127, 0.6);
   line-height: 1.4;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
   font-variant: small-caps;
 }
 

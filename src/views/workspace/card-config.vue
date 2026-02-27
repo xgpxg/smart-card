@@ -178,6 +178,20 @@ const exampleContent = '人工智能正在深刻改变我们的生活。从智�
 const saveAll = async () => {
   PubSub.publish('workspace/card/save')
 }
+
+const getOS = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  if (userAgent.includes('win')) {
+    return 'windows';
+  } else if (userAgent.includes('mac')) {
+    return 'macos';
+  } else if (userAgent.includes('linux')) {
+    return 'linux';
+  } else {
+    return 'Unknown';
+  }
+};
 </script>
 
 <template>
@@ -185,7 +199,8 @@ const saveAll = async () => {
     <audio :key="audio_url"
            controls controlslist="nodownload noplaybackrate"
            class="fill-width"
-           style="height: 32px">
+           style="height: 32px"
+           :os="getOS()">
       <source :src="audio_url" type="audio/mp3">
       无法播放此音频。
     </audio>
@@ -304,7 +319,7 @@ const saveAll = async () => {
 .style-thumbnail {
   position: relative;
   height: 100px;
-  width: 100%;
+  width: 80px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -363,7 +378,7 @@ const saveAll = async () => {
   }
 }
 
-audio {
+audio[os="windows"] {
   filter: invert(0.8) hue-rotate(180deg);
 
   &::-webkit-media-controls-enclosure {

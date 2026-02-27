@@ -1,12 +1,13 @@
-use crate::common::utils::check_is_audio;
 use crate::db::models::workspace::{
     Font, Pagination, TransTextStatus, Workspace, WorkspaceBuilder,
 };
 use crate::db::{tools, Pool};
+use crate::server::workspace::{check_is_audio_or_video, extract_audio_from_video, FileType};
 use common::id;
 use rbs::value;
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use tauri::{AppHandle, Emitter};
 
 pub(crate) async fn list() -> anyhow::Result<Vec<Workspace>> {
@@ -16,17 +17,26 @@ pub(crate) async fn list() -> anyhow::Result<Vec<Workspace>> {
 }
 
 pub(crate) async fn add(file_path: String) -> anyhow::Result<()> {
-    check_is_audio(&file_path)?;
+    let file_type = check_is_audio_or_video(&file_path)?;
     let path = Path::new(&file_path);
+    let filename = path.file_name().unwrap().to_string_lossy().to_string();
+    let file_stem = path.file_stem().unwrap().to_string_lossy().to_string();
+    let path = match file_type {
+        FileType::Audio => Path::new(&file_path).to_path_buf(),
+        FileType::Video => {
+            let output_path = Path::new(&file_path)
+                .parent()
+                .unwrap()
+                .join(format!("{}.mp3", file_stem));
+            extract_audio_from_video(&file_path, &output_path.display().to_string())?;
+            output_path
+        }
+    };
     let ws = WorkspaceBuilder::default()
         .id(Some(id::next()))
         .file_path(Some(path.display().to_string()))
-        .file_name(Some(
-            path.file_name().unwrap().to_string_lossy().to_string(),
-        ))
-        .raw_file_name(Some(
-            path.file_name().unwrap().to_string_lossy().to_string(),
-        ))
+        .file_name(Some(filename.clone()))
+        .raw_file_name(Some(filename))
         .file_size(Some(path.metadata()?.len()))
         .file_type(Some(
             path.extension().unwrap().to_string_lossy().to_string(),

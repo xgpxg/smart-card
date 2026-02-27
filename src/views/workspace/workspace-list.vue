@@ -56,8 +56,8 @@ const openFileDialog = async () => {
     multiple: true, // 允许选择多个文件
     filters: [
       {
-        name: '音频文件',
-        extensions: ['mp3', 'wav', 'ogg', 'm4a'],
+        name: '音频/视频',
+        extensions: ['mp3', 'wav', 'ogg', 'm4a',  'mp4', 'avi', 'mov' ],
       },
     ],
   })

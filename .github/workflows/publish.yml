@@ -19,12 +19,12 @@ jobs:
           - os: windows-latest
             asset: msi/myj_${{ github.ref_name }}_x64_en-US.msi
           - os: [ self-hosted, cuda12.6, Windows ]
-            asset: msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.6.msi
-            name: windows-cuda12.6
+            asset: msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.msi
+            name: windows-cuda12
             features: "-- --features cuda"
           - os: [ self-hosted, cuda12.8, Ubuntu ]
-            asset: appimage/myj_${{ github.ref_name }}_amd64-cuda12.8.AppImage
-            name: ubuntu-cuda12.8
+            asset: appimage/myj_${{ github.ref_name }}_amd64-cuda12.AppImage
+            name: ubuntu-cuda12
             features: "-- --features cuda"
     runs-on: ${{ matrix.os }}
     steps:
@@ -51,12 +51,12 @@ jobs:
 
       # 设置前端版本号
       - name: Set frontend version for  Ubuntu
-        if: matrix.os == 'ubuntu-22.04' || matrix.name == 'ubuntu-cuda12.6'
+        if: matrix.os == 'ubuntu-22.04' || matrix.name == 'ubuntu-cuda12'
         run: sed -i "s/^VITE_VERSION=.*/VITE_VERSION=${{ github.ref_name }}/" .env.production
 
       # 设置前端版本号
       - name: Set frontend version for  Windows
-        if: matrix.os == 'windows-latest' || matrix.name == 'windows-cuda12.6'
+        if: matrix.os == 'windows-latest' || matrix.name == 'windows-cuda12'
         run: (Get-Content .env.production) -replace '^VITE_VERSION=.*', 'VITE_VERSION=${{ github.ref_name }}' | Set-Content .env.production
 
         # 设置前端版本号
@@ -70,15 +70,15 @@ jobs:
 
       # 重命名
       - name: Rename Windows App When Using CUDA
-        if: matrix.name == 'windows-cuda12.6'
+        if: matrix.name == 'windows-cuda12'
         run: |
-          move src-tauri/target/release/bundle/msi/myj_${{ github.ref_name }}_x64_en-US.msi src-tauri/target/release/bundle/msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.6.msi
+          move src-tauri/target/release/bundle/msi/myj_${{ github.ref_name }}_x64_en-US.msi src-tauri/target/release/bundle/msi/myj_${{ github.ref_name }}_x64_en-US-cuda12.msi
 
       # 重命名
       - name: Rename Ubuntu App When Using CUDA
-        if: matrix.name == 'ubuntu-cuda12.6'
+        if: matrix.name == 'ubuntu-cuda12'
         run: |
-          mv src-tauri/target/release/bundle/appimage/myj_${{ github.ref_name }}_amd64.AppImage src-tauri/target/release/bundle/appimage/myj_${{ github.ref_name }}_amd64-cuda12.6.AppImage
+          mv src-tauri/target/release/bundle/appimage/myj_${{ github.ref_name }}_amd64.AppImage src-tauri/target/release/bundle/appimage/myj_${{ github.ref_name }}_amd64-cuda12.AppImage
 
       # 创建 Release
       - name: Create Release

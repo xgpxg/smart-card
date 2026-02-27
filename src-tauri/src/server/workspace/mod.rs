@@ -24,7 +24,7 @@ pub fn check_is_audio_or_video<P: Into<String>>(path: P) -> anyhow::Result<FileT
 pub fn extract_audio_from_video(video_path: &str, output_path: &str) -> anyhow::Result<()> {
     #[cfg(target_os = "windows")]
     let command = resources_dir!("bin", "windows", "ffmpeg", "bin", "ffmpeg.exe");
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let command = resources_dir!("bin", "ubuntu", "ffmpeg", "bin", "ffmpeg");
     let output = Command::new(command)
         .args(["-i", video_path, "-q:a", "0", "-map", "a", output_path])

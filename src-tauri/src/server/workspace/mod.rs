@@ -37,3 +37,39 @@ pub fn extract_audio_from_video(video_path: &str, output_path: &str) -> anyhow::
 
     Ok(())
 }
+
+/// 拆分长音频
+pub fn split_long_audio(
+    audio_path: &str,
+    output_dir: &str,
+    chunk_duration: u64,
+) -> anyhow::Result<Vec<String>> {
+    #[cfg(target_os = "windows")]
+    let command = resources_dir!("bin", "windows", "ffmpeg", "bin", "ffmpeg.exe");
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let command = resources_dir!("bin", "ubuntu", "ffmpeg", "bin", "ffmpeg");
+
+    let ext = audio_path.split(".").last().unwrap();
+    let output = Command::new(command)
+        .args([
+            "-i",
+            audio_path,
+            "-f",
+            "segment",
+            "-segment_time",
+            &chunk_duration.to_string(),
+            "-c",
+            "copy",
+            format!("{}/%03d.{}", output_dir, ext).as_str(),
+        ])
+        .output()?;
+    if !output.status.success() {
+        let error_msg = String::from_utf8_lossy(&output.stderr);
+        return Err(anyhow::anyhow!("ffmpeg 执行失败: {}", error_msg));
+    }
+    let files = std::fs::read_dir(output_dir)?
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path().to_string_lossy().to_string())
+        .collect::<Vec<_>>();
+    Ok(files)
+}

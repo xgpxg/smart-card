@@ -1,6 +1,6 @@
 [package]
 name = "myj"
-version = "0.1.0"
+version = "0.1.1"
 description = "墨音笺"
 authors = ["wxg"]
 edition = "2021"

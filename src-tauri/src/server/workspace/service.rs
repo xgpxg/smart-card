@@ -2,12 +2,16 @@ use crate::db::models::workspace::{
     Font, Pagination, TransTextStatus, Workspace, WorkspaceBuilder,
 };
 use crate::db::{tools, Pool};
-use crate::server::workspace::{check_is_audio_or_video, extract_audio_from_video, FileType};
+use crate::server::workspace::{
+    check_is_audio_or_video, extract_audio_from_video, split_long_audio, FileType,
+};
 use common::id;
+use rbatis::rbdc::uuid;
 use rbs::value;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::{env, fs};
 use tauri::{AppHandle, Emitter};
 
 pub(crate) async fn list() -> anyhow::Result<Vec<Workspace>> {
@@ -117,7 +121,38 @@ pub(crate) async fn start_audio_to_text(id: i64) -> anyhow::Result<()> {
         },
     )
     .await?;
-    let content = asr::run(path).await?;
+
+    let file_size = workspace.file_size.unwrap();
+    let content = if file_size <= 1024 * 1024 * 2 {
+        asr::run(path).await?
+    } else {
+        let file_path = PathBuf::from(path);
+        let tem_dir = env::temp_dir().join(uuid::Uuid::new().to_string());
+        fs::create_dir_all(&tem_dir)?;
+        log::info!(
+            "开始拆分音频: {} -> {}",
+            file_path.display(),
+            tem_dir.display()
+        );
+        let files = split_long_audio(
+            &file_path.display().to_string(),
+            &tem_dir.display().to_string(),
+            60,
+        )?;
+
+        log::info!("音频拆分完成");
+
+        let mut content = Vec::new();
+        for file in files {
+            log::info!("开始识别文件: {}", file);
+            let content_part = asr::run(&file).await?;
+            content.push(content_part);
+        }
+
+        fs::remove_dir_all(tem_dir)?;
+
+        content.join("")
+    };
 
     update.trans_text = Some(content);
     update.trans_text_status = Some(TransTextStatus::Ok);
